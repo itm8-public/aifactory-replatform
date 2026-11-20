@@ -1,0 +1,742 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Generated from packages/shared/src/schemas/replatformRunInput.ts (replatformRunInputSchema) by pnpm contracts:export. Do not edit.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "runId": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+    },
+    "engagementId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "sandbox",
+        "manual"
+      ]
+    },
+    "intent": {
+      "type": "string",
+      "enum": [
+        "assess",
+        "plan",
+        "rebuild",
+        "security-only"
+      ]
+    },
+    "model": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "type": "string",
+          "enum": [
+            "subscription",
+            "foundry"
+          ]
+        },
+        "deployment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "profile"
+      ],
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "intakeImportCommit": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^([a-f0-9]{40}|[a-f0-9]{64})$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "synthetic",
+            "internal",
+            "customer"
+          ]
+        }
+      },
+      "required": [
+        "sha256",
+        "intakeImportCommit",
+        "class"
+      ],
+      "additionalProperties": false
+    },
+    "engagementInput": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "solutionId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "customerId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "specification": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "revision": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "draft",
+                    "pending-approval",
+                    "approved",
+                    "superseded",
+                    "archived"
+                  ]
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "id",
+                "revision",
+                "status",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "customer": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        "solution": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        "tenantId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "zone": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "green",
+                "yellow",
+                "red"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "region": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "allowedRegions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "archetype": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "corp",
+                "online",
+                "public"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "connectivity": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "internal",
+                "isolated"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "audience": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "internal",
+                "external",
+                "public"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "environments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "dev",
+                  "test",
+                  "prod"
+                ]
+              },
+              "level": {
+                "type": "string",
+                "enum": [
+                  "basic",
+                  "standard",
+                  "premium"
+                ]
+              },
+              "subscriptionId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "level",
+              "subscriptionId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "uploadId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "fileName": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "zip",
+                    "xml",
+                    "repomix"
+                  ]
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "packageSha256": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "uploadedAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "uploadId",
+                "fileName",
+                "kind",
+                "sha256",
+                "packageSha256",
+                "uploadedAt"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "missing": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "tenantId",
+              "zone",
+              "region",
+              "archetype",
+              "connectivity",
+              "audience",
+              "environments",
+              "source"
+            ]
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "solutionId",
+        "customerId",
+        "specification",
+        "customer",
+        "solution",
+        "tenantId",
+        "zone",
+        "region",
+        "allowedRegions",
+        "archetype",
+        "connectivity",
+        "audience",
+        "environments",
+        "source",
+        "missing"
+      ],
+      "additionalProperties": false
+    },
+    "engagement": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "integrated",
+                "offline"
+              ]
+            },
+            "requestedZone": {
+              "type": "string",
+              "enum": [
+                "green",
+                "yellow",
+                "red"
+              ]
+            },
+            "suggestedZone": {
+              "type": "string",
+              "enum": [
+                "green",
+                "yellow",
+                "red"
+              ]
+            },
+            "confirmedZone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "green",
+                    "yellow",
+                    "red"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "azureAccessMode": {
+              "type": "string",
+              "enum": [
+                "none",
+                "read-only"
+              ]
+            },
+            "dataClassification": {
+              "type": "string",
+              "enum": [
+                "synthetic",
+                "non-personal",
+                "personal",
+                "special-category",
+                "regulated",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "mode",
+            "requestedZone",
+            "suggestedZone",
+            "confirmedZone",
+            "azureAccessMode",
+            "dataClassification"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "snapshotId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "snapshotId",
+        "version",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "maxTurns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "stepTimeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "runTimeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "maxTurns",
+        "stepTimeoutSeconds",
+        "runTimeoutSeconds"
+      ],
+      "additionalProperties": false
+    },
+    "prerequisiteRoles": {
+      "maxItems": 6,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "customer-platform",
+              "customer-identity",
+              "customer-soc",
+              "customer-dns-mail",
+              "customer-cicd",
+              "customer-escalation"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "open",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "role",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "contentSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "discoveredAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        },
+        "prefill": {
+          "type": "object",
+          "properties": {
+            "zone": {
+              "type": "string",
+              "enum": [
+                "green",
+                "yellow",
+                "red"
+              ]
+            },
+            "region": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "archetype": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "corp",
+                    "online",
+                    "public"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "zone",
+            "region",
+            "archetype"
+          ],
+          "additionalProperties": false
+        },
+        "fit": {
+          "maxItems": 50,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "block": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,39}$"
+              },
+              "fit": {
+                "type": "string",
+                "enum": [
+                  "ready",
+                  "reuse",
+                  "needs-fix",
+                  "missing",
+                  "unknown"
+                ]
+              },
+              "ownerRole": {
+                "type": "string",
+                "enum": [
+                  "customer-platform",
+                  "customer-identity",
+                  "customer-soc",
+                  "itm8-delivery",
+                  "itm8-operations"
+                ]
+              }
+            },
+            "required": [
+              "block",
+              "fit"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "contentSha256",
+        "discoveredAt",
+        "prefill",
+        "fit"
+      ],
+      "additionalProperties": false
+    },
+    "buildProfile": {
+      "type": "object",
+      "properties": {
+        "kitVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "zoneAssumption": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "green",
+                "yellow",
+                "red"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "apps": {
+          "maxItems": 20,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,9}$"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "web",
+                  "api",
+                  "worker"
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      },
+      "required": [
+        "kitVersion",
+        "zoneAssumption",
+        "apps",
+        "date"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "runId",
+    "engagementId",
+    "mode",
+    "intent",
+    "model",
+    "source",
+    "engagementInput",
+    "engagement",
+    "policy",
+    "limits"
+  ],
+  "additionalProperties": false
+}

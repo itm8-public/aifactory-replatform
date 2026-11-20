@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "files": {
+    "engagement-input.schema.json": {
+      "contract": "C1",
+      "schemaVersion": 1,
+      "source": "packages/shared/src/schemas/engagementInput.ts (engagementInputSchema)",
+      "sha256": "96894866446ab6ed12c0641d746810bc1f69682628e9a8bdf5f3f5a4ca9daa03"
+    },
+    "app-proposal.schema.json": {
+      "contract": "C2",
+      "schemaVersion": 1,
+      "source": "packages/shared/src/schemas/appProposal.ts (appProposalSchema)",
+      "sha256": "0da390ca5d29e1f88ed0f7631da76e78cf167e88c9a0d887f761bf3dafa57bc0"
+    },
+    "ai-factory-spec.schema.json": {
+      "contract": "C3",
+      "schemaVersion": "1",
+      "source": "packages/shared/src/schemas/platform.ts (wizardSpecV1Schema)",
+      "sha256": "84f0d4ef57edf758e840b05916823ed4e1f5e1f6e9be47b75671eaa941da46f8"
+    },
+    "replatform-assessment.schema.json": {
+      "contract": "assessment",
+      "schemaVersion": 1,
+      "source": "packages/shared/src/schemas/replatformAssessment.ts (assessmentCreateSchema)",
+      "sha256": "9354e23580951dc3550d75c3c6e41466b1ce5c6c71f368dc82b48a1e250bf065"
+    },
+    "mcp-tools.json": {
+      "contract": "mcp-tools",
+      "schemaVersion": 1,
+      "source": "packages/shared/src/schemas/replatformTools.ts (REPLATFORM_MCP_TOOLS)",
+      "sha256": "46ed6fec2ff0e0846d294527fa1d3a66f1a59a0da0522d24638491ef42c77116"
+    },
+    "knowledge-mcp-tools.json": {
+      "contract": "knowledge-mcp-tools",
+      "schemaVersion": 2,
+      "source": "packages/shared/src/schemas/knowledge.ts (KNOWLEDGE_MCP_TOOLS)",
+      "sha256": "a9404f36b5ddede9c1a0e22b8e960ba3e676acd8ce8066fa549e7cb8ee84c17f"
+    },
+    "run-bundle.schema.json": {
+      "contract": "run-bundle",
+      "schemaVersion": 1,
+      "source": "packages/shared/src/schemas/replatformRunBundle.ts (replatformRunBundleManifestSchema)",
+      "sha256": "8461a9e460c5fa4d4891300eb378a846ff6df0a7846810bb33d29a480e12e9e3"
+    },
+    "a2a-runs.json": {
+      "contract": "a2a-runs",
+      "schemaVersion": 1,
+      "source": "packages/shared/src/schemas/a2a.ts (A2A_METHODS, a2aStartRunDataSchema, a2aRunDataSchema)",
+      "sha256": "289706f3bb09d2b6c28f0dc185a2fde2cc2f9e128e57c98fb3269fddfbb446e4"
+    },
+    "wizard-agent.json": {
+      "contract": "wizard-agent",
+      "schemaVersion": 1,
+      "source": "packages/shared/src/schemas/wizardAgent.ts (WIZARD_AGENT_ALLOWED_TOOLS)",
+      "sha256": "938d3cb5b08bcd0754010977ad668bf71f022c9176fcc2470def70b9abc7f5ea"
+    },
+    "run-input.schema.json": {
+      "contract": "run-input",
+      "schemaVersion": 1,
+      "source": "packages/shared/src/schemas/replatformRunInput.ts (replatformRunInputSchema)",
+      "sha256": "369a8533f1812b3e6807bb11c2939f5af8a89340fdaaac6f3fb2a10979ec6f0a"
+    }
+  }
+}

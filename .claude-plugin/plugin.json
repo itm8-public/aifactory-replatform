@@ -1,0 +1,9 @@
+{
+  "name": "aifactory-replatform",
+  "version": "0.3.1",
+  "description": "Evidence-first itm8 AI Factory replatform playbook: assess an existing application, ask the owner, propose a target, record human decisions, and prepare the app as a draft pull request for review. Never deploys.",
+  "author": { "name": "itm8 SE Digital Transformation" },
+  "keywords": ["itm8", "ai-factory", "replatform", "azure", "migration", "evidence", "draft-pr"],
+  "license": "LicenseRef-itm8-source-available",
+  "repository": "https://github.com/itm8-public/aifactory-replatform"
+}

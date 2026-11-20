@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Generated from packages/shared/src/schemas/engagementInput.ts (engagementInputSchema) by pnpm contracts:export. Do not edit.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "solutionId": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+    },
+    "customerId": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+    },
+    "specification": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "revision": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "pending-approval",
+                "approved",
+                "superseded",
+                "archived"
+              ]
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "revision",
+            "status",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "code"
+      ],
+      "additionalProperties": false
+    },
+    "solution": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "code"
+      ],
+      "additionalProperties": false
+    },
+    "tenantId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "zone": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "green",
+            "yellow",
+            "red"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "region": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "allowedRegions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "archetype": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "corp",
+            "online",
+            "public"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "connectivity": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "internal",
+            "isolated"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "audience": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "internal",
+            "external",
+            "public"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "environments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "dev",
+              "test",
+              "prod"
+            ]
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "basic",
+              "standard",
+              "premium"
+            ]
+          },
+          "subscriptionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "level",
+          "subscriptionId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "source": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "uploadId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "fileName": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "zip",
+                "xml",
+                "repomix"
+              ]
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "packageSha256": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "uploadedAt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "uploadId",
+            "fileName",
+            "kind",
+            "sha256",
+            "packageSha256",
+            "uploadedAt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "missing": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "tenantId",
+          "zone",
+          "region",
+          "archetype",
+          "connectivity",
+          "audience",
+          "environments",
+          "source"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "solutionId",
+    "customerId",
+    "specification",
+    "customer",
+    "solution",
+    "tenantId",
+    "zone",
+    "region",
+    "allowedRegions",
+    "archetype",
+    "connectivity",
+    "audience",
+    "environments",
+    "source",
+    "missing"
+  ],
+  "additionalProperties": false
+}

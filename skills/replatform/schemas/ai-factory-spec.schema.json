@@ -1,0 +1,623 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:itm8:aifactory:ai-factory-spec:1",
+  "title": "AI Factory Wizard ai-factory.json v1 (replatform projection)",
+  "description": "The documented v1 Wizard input surface used by the replatform agent. Additive Wizard fields remain accepted; consult the pinned Management App source contract before extending this projection.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "customer",
+    "solution",
+    "tenantId",
+    "zone",
+    "region",
+    "environments",
+    "delivery"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1"
+    },
+    "generator": {
+      "type": "string"
+    },
+    "customer": {
+      "type": "object",
+      "required": [
+        "name",
+        "code"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]{1,3}$",
+          "not": {
+            "const": "itm8"
+          },
+          "description": "2-4 lowercase letters/digits, starts with a letter; itm8 is reserved. Never fabricate this value."
+        }
+      },
+      "additionalProperties": true
+    },
+    "solution": {
+      "type": "object",
+      "required": [
+        "name",
+        "code",
+        "owner",
+        "costCenter"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "code": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "owner": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "costCenter": {
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "additionalProperties": true
+    },
+    "tenantId": {
+      "type": "string",
+      "maxLength": 400
+    },
+    "archetype": {
+      "enum": [
+        "corp",
+        "online",
+        "public",
+        ""
+      ]
+    },
+    "connectivity": {
+      "enum": [
+        "internal",
+        "isolated",
+        ""
+      ]
+    },
+    "audience": {
+      "enum": [
+        "internal",
+        "external",
+        "public",
+        ""
+      ]
+    },
+    "evaluation": {
+      "type": "object",
+      "required": [
+        "data",
+        "expiresOn"
+      ],
+      "properties": {
+        "data": {
+          "enum": [
+            "synthetic",
+            "non-sensitive",
+            "personal",
+            "sensitive",
+            ""
+          ]
+        },
+        "expiresOn": {
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "additionalProperties": true
+    },
+    "zone": {
+      "enum": [
+        "green",
+        "yellow",
+        "red"
+      ]
+    },
+    "subZone": {
+      "enum": [
+        "yellow-public",
+        "yellow-internal",
+        "red-hub",
+        "red-isolated"
+      ]
+    },
+    "soc": {
+      "type": "boolean"
+    },
+    "region": {
+      "type": "string",
+      "maxLength": 400,
+      "description": "The Wizard has no region default; empty means unanswered."
+    },
+    "allowedRegions": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "swedencentral",
+          "swedensouth",
+          "northeurope",
+          "westeurope",
+          "germanywestcentral",
+          "francecentral",
+          "italynorth",
+          "polandcentral",
+          "spaincentral"
+        ]
+      }
+    },
+    "prodOnlyApproval": {
+      "type": "object",
+      "description": "Present only when production is the only environment: a person approved deploying it without a lower environment (who and when). Written by the Wizard from a checkbox; the agent never writes it.",
+      "required": [
+        "approvedBy",
+        "approvedAt"
+      ],
+      "properties": {
+        "approvedBy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": true
+    },
+    "environments": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "level",
+          "subscriptionId"
+        ],
+        "properties": {
+          "name": {
+            "enum": [
+              "dev",
+              "test",
+              "prod"
+            ]
+          },
+          "level": {
+            "enum": [
+              "basic",
+              "standard",
+              "premium"
+            ]
+          },
+          "subscriptionId": {
+            "type": "string",
+            "maxLength": 400
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "egress": {
+      "type": "object",
+      "required": [
+        "firewall"
+      ],
+      "properties": {
+        "firewall": {
+          "enum": [
+            "existing",
+            "fortigate",
+            "azure-firewall",
+            "nat-gateway",
+            "none"
+          ]
+        },
+        "firewallNextHopIp": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "azureFirewallApproval": {
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "additionalProperties": true
+    },
+    "network": {
+      "type": "object",
+      "required": [
+        "gatewayMode",
+        "existingGatewayId",
+        "natGateway",
+        "fixedOutboundIp",
+        "existingRegistryId",
+        "defenderPlans",
+        "foundryPortalIps"
+      ],
+      "properties": {
+        "gatewayMode": {
+          "enum": [
+            "new",
+            "existing"
+          ]
+        },
+        "existingGatewayId": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "natGateway": {
+          "type": "boolean"
+        },
+        "fixedOutboundIp": {
+          "type": "boolean"
+        },
+        "existingRegistryId": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "defenderPlans": {
+          "type": "boolean"
+        },
+        "foundryPortalIps": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "address"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 400
+              },
+              "address": {
+                "type": "string",
+                "maxLength": 400
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "apps": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "repository",
+          "port",
+          "hostName",
+          "healthPath",
+          "settings",
+          "easyAuth",
+          "database",
+          "ai",
+          "migrationJob"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "kind": {
+            "enum": [
+              "web",
+              "api",
+              "worker"
+            ]
+          },
+          "repository": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "hostName": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "healthPath": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "settings": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "secret"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 400
+                },
+                "secret": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "easyAuth": {
+            "type": "boolean"
+          },
+          "database": {
+            "type": "boolean"
+          },
+          "ai": {
+            "type": "boolean"
+          },
+          "migrationJob": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "command"
+                ],
+                "properties": {
+                  "command": {
+                    "type": "string",
+                    "maxLength": 400
+                  }
+                },
+                "additionalProperties": true
+              }
+            ]
+          },
+          "certificateSource": {
+            "enum": [
+              "customer-pfx",
+              "key-vault-secret"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "foundry": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "models"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "level": {
+          "enum": [
+            "basic",
+            "premium"
+          ]
+        },
+        "models": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "tokensPerMinute": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "monthlyTokenQuota": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalTokensPerMinute": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "totalMonthlyTokenQuota": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "gatewayPrivateOnly": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "dev",
+              "test",
+              "prod"
+            ]
+          },
+          "maxItems": 3
+        },
+        "gatewayContact": {
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "additionalProperties": true
+    },
+    "delivery": {
+      "type": "object",
+      "required": [
+        "channel"
+      ],
+      "properties": {
+        "channel": {
+          "enum": [
+            "github",
+            "azure-devops",
+            "bicep"
+          ]
+        },
+        "host": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "organization": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "project": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "repository": {
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "additionalProperties": true
+    },
+    "readiness": {
+      "type": "object",
+      "properties": {
+        "accessGroups": {
+          "enum": [
+            "ready",
+            "pending",
+            "unknown",
+            ""
+          ]
+        },
+        "eligibleAccounts": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "accessAdmin": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 400
+            },
+            "email": {
+              "type": "string",
+              "maxLength": 400
+            }
+          },
+          "additionalProperties": true
+        },
+        "socLogging": {
+          "enum": [
+            "ready",
+            "pending",
+            "unknown",
+            ""
+          ]
+        },
+        "customerActions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "ownershipMode": {
+          "enum": [
+            "platform-vended",
+            "existing-compliant",
+            "itm8-managed",
+            "prototype-isolated"
+          ]
+        },
+        "foundryOption": {
+          "enum": [
+            "not-used",
+            "shared-itm8",
+            "itm8-dedicated",
+            "customer-foundry"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "caf": {
+      "type": "object",
+      "properties": {
+        "defenderInherited": {
+          "type": "boolean"
+        },
+        "bastionPresent": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "dataPlatform": {},
+    "discovery": {},
+    "services": {
+      "type": "object",
+      "properties": {
+        "dnsOwnerRole": {
+          "enum": [
+            "customer-dns-mail",
+            "customer-platform"
+          ]
+        },
+        "mail": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": [
+                "none",
+                "acs-email",
+                "m365-connector"
+              ]
+            },
+            "senderDomain": {
+              "type": "string",
+              "maxLength": 400
+            }
+          },
+          "required": [
+            "mode",
+            "senderDomain"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "dnsOwnerRole",
+        "mail"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://itm8.example/aifactory/sandbox-result.schema.json",
+  "title": "AI Factory replatform sandbox result",
+  "description": "What a sandbox run leaves in .aifactory/sandbox-result.json. The result builder in scripts/sandbox-mode.mjs writes it from the run input and the plan, never the model. needs-input: the run stopped after assess with at most ten questions. completed: the run reached the end of the phase its intent names. It carries no approval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "runId", "engagementId", "status", "step", "intent", "source", "policy", "questions"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "runId": { "$ref": "#/$defs/uuid" },
+    "engagementId": { "anyOf": [{ "$ref": "#/$defs/uuid" }, { "type": "null" }] },
+    "status": { "enum": ["needs-input", "completed"] },
+    "step": {
+      "enum": ["assess", "plan"],
+      "description": "The last phase finished: assess (Phases 1 and 2) or plan (Phase 3). needs-input always ends after assess."
+    },
+    "intent": { "enum": ["assess", "plan"] },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256"],
+      "properties": { "sha256": { "$ref": "#/$defs/sha256" } }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["snapshotId", "version", "sha256"],
+      "properties": {
+        "snapshotId": { "$ref": "#/$defs/uuid" },
+        "version": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "maxItems": 10,
+      "description": "The unanswered questions, in the plan's order, never more than ten (owner decision OD-6).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text", "why"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "maxLength": 40 },
+          "text": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "why": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "options": { "type": "array", "maxItems": 6, "items": { "type": "string", "maxLength": 200 } }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "needs-input" } }, "required": ["status"] },
+      "then": {
+        "properties": { "step": { "const": "assess" }, "questions": { "minItems": 1 } }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "completed" } }, "required": ["status"] },
+      "then": {
+        "oneOf": [
+          { "properties": { "intent": { "const": "assess" }, "step": { "const": "assess" } } },
+          { "properties": { "intent": { "const": "plan" }, "step": { "const": "plan" } } }
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+    },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

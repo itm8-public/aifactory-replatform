@@ -1,0 +1,18 @@
+{
+  "name": "itm8-aifactory-replatform-agent",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate-plan": "node scripts/validate-plan.mjs",
+    "validate-wizard-spec": "node scripts/validate-wizard-spec.mjs",
+    "validate-implementation": "node scripts/validate-implementation.mjs",
+    "sandbox-preflight": "node scripts/sandbox-mode.mjs preflight",
+    "sandbox-result": "node scripts/sandbox-mode.mjs result",
+    "analyze-plan": "node scripts/plan-analysis.mjs analyze",
+    "converge": "node scripts/plan-analysis.mjs converge"
+  },
+  "devDependencies": {
+    "ajv": "8.17.1",
+    "ajv-formats": "3.0.1"
+  }
+}

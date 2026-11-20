@@ -1,0 +1,36 @@
+{
+  "$comment": "Generated from packages/shared/src/schemas/wizardAgent.ts by pnpm contracts:export. Do not edit.",
+  "schemaVersion": 1,
+  "agentName": "aifactory-wizard-agent",
+  "allowedTools": [
+    "replatform_get_engagement_input",
+    "replatform_get_engagement",
+    "replatform_get_audit_timeline",
+    "replatform_get_policy_snapshot",
+    "replatform_get_landing_zone_catalog",
+    "replatform_get_customer_caf_profile",
+    "replatform_get_shared_resources",
+    "replatform_get_prerequisite_status",
+    "replatform_ask_question",
+    "replatform_validate_replatform_plan",
+    "replatform_post_replatform_assessment",
+    "replatform_request_approval",
+    "replatform_get_customer_summary",
+    "replatform_post_wizard_proposal",
+    "replatform_create_question_packages",
+    "replatform_start_replatform_run",
+    "replatform_get_replatform_run"
+  ],
+  "forbiddenTools": [
+    "replatform_record_approval",
+    "replatform_decide_scope_amendment",
+    "replatform_request_scope_amendment",
+    "replatform_answer_question",
+    "replatform_answer_risk_question",
+    "replatform_discover_azure_landing_zone",
+    "replatform_allowed_source_connections",
+    "replatform_register_evidence",
+    "replatform_register_artifact",
+    "replatform_append_event"
+  ]
+}

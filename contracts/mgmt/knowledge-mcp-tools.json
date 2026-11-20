@@ -1,0 +1,549 @@
+{
+  "tools": [
+    {
+      "name": "searchKnowledge",
+      "title": "Search AI Factory knowledge",
+      "description": "Search customers, use cases, engagements, solutions, subscriptions, the service catalogue, the Library (checklists, guides, runbooks, policies), security tests, pentests, findings and agents by meaning and keywords. Returns the best matching passages with a link to each record. Use it first for open questions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 500,
+            "description": "The question or keywords, in any language."
+          },
+          "entityTypes": {
+            "description": "Only return these kinds of records.",
+            "anyOf": [
+              {
+                "maxItems": 13,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "customer",
+                    "use_case",
+                    "engagement",
+                    "solution",
+                    "solution_type",
+                    "service",
+                    "subscription",
+                    "subscription_checklist",
+                    "library_item",
+                    "security_test",
+                    "pentest_engagement",
+                    "finding",
+                    "agent"
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "customer": {
+            "description": "Only records of this customer (name or id).",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "getCustomerOverview",
+      "title": "Get customer overview",
+      "description": "One customer: profile, subscriptions with service and tier, use cases by status, solutions with status and health, and open findings. Contacts and personal data are not returned.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Customer name or id."
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "getSolution",
+      "title": "Get solution",
+      "description": "One solution: description, type and type-specific fields, status, health, SLA tier, hosting decision, recent security tests, open findings and the checklists of its subscription.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "solution": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Solution name or id."
+          },
+          "customer": {
+            "description": "Customer name or id, when the name is ambiguous.",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "solution"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "listUseCases",
+      "title": "List use cases",
+      "description": "Use cases filtered by customer and status, with value and effort scores. Use it to count or compare use cases.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "maxItems": 5,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "idea",
+                    "prioritised",
+                    "in_build",
+                    "live",
+                    "retired"
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "listSolutions",
+      "title": "List solutions",
+      "description": "Solutions filtered by customer, status, health, solution type, or no security test in a number of days. Use it to count or compare solutions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "maxItems": 4,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "planned",
+                    "in_build",
+                    "live",
+                    "retired"
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "health": {
+            "anyOf": [
+              {
+                "maxItems": 4,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "healthy",
+                    "degraded",
+                    "down",
+                    "unknown"
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "solutionType": {
+            "description": "Solution type name or key, e.g. foundry_agent.",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "withoutSecurityTestSinceDays": {
+            "description": "Only solutions with no security test recorded in this many days.",
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3650
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "listFindings",
+      "title": "List findings",
+      "description": "Findings reported by operations agents, filtered by customer, status (default open and acknowledged), severity and how recently they were seen.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "maxItems": 4,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "open",
+                    "acknowledged",
+                    "resolved",
+                    "dismissed"
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "maxItems": 5,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "info",
+                    "low",
+                    "medium",
+                    "high",
+                    "critical"
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sinceDays": {
+            "description": "Last seen within days.",
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3650
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "getLibraryItem",
+      "title": "Get Library item",
+      "description": "One checklist, guide, runbook, policy or document: summary, frameworks, checklist items with guidance, inline text, and the link to its source document.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Library item title or id."
+          }
+        },
+        "required": [
+          "item"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "findGuidance",
+      "title": "Find guidance",
+      "description": "Library items that apply to a topic, a solution type or a service: what a consultant should implement or check. Returns titles, summaries and links.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "solutionType": {
+            "description": "Solution type name or key.",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "service": {
+            "description": "Service name or key.",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kinds": {
+            "anyOf": [
+              {
+                "maxItems": 5,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "checklist",
+                    "guide",
+                    "runbook",
+                    "policy",
+                    "document"
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "getServiceCatalogue",
+      "title": "Get service catalogue",
+      "description": "Services in pilot or generally available (or one named service) with their tiers: scope, service hours, availability target, indicative list price, minimum term, licence requirements and compliance details (AI Act role, EU data residency, and the frameworks that apply, such as NIS2, DORA or OWASP Top 10).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "description": "One service by name or key; all active ones if empty.",
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

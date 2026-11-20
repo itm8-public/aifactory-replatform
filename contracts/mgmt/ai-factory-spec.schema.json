@@ -1,0 +1,494 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Generated from packages/shared/src/schemas/platform.ts (wizardSpecV1Schema) by pnpm contracts:export. Do not edit.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1"
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "",
+          "type": "string",
+          "maxLength": 400
+        },
+        "code": {
+          "default": "",
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "required": [
+        "name",
+        "code"
+      ]
+    },
+    "solution": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "",
+          "type": "string",
+          "maxLength": 400
+        },
+        "code": {
+          "default": "",
+          "type": "string",
+          "maxLength": 400
+        },
+        "owner": {
+          "default": "",
+          "type": "string",
+          "maxLength": 400
+        },
+        "costCenter": {
+          "default": "",
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "required": [
+        "name",
+        "code",
+        "owner",
+        "costCenter"
+      ]
+    },
+    "tenantId": {
+      "default": "",
+      "type": "string",
+      "maxLength": 400
+    },
+    "zone": {
+      "type": "string",
+      "enum": [
+        "green",
+        "yellow",
+        "red"
+      ]
+    },
+    "region": {
+      "default": "",
+      "type": "string",
+      "maxLength": 400
+    },
+    "archetype": {
+      "type": "string",
+      "enum": [
+        "corp",
+        "online",
+        "public"
+      ]
+    },
+    "connectivity": {
+      "type": "string",
+      "enum": [
+        "internal",
+        "isolated"
+      ]
+    },
+    "audience": {
+      "type": "string",
+      "enum": [
+        "internal",
+        "external",
+        "public"
+      ]
+    },
+    "allowedRegions": {
+      "maxItems": 50,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 40
+      }
+    },
+    "egress": {
+      "type": "object",
+      "properties": {
+        "firewall": {
+          "type": "string",
+          "enum": [
+            "existing",
+            "fortigate",
+            "azure-firewall",
+            "nat-gateway",
+            "none"
+          ]
+        },
+        "firewallNextHopIp": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "azureFirewallApproval": {
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "firewall"
+      ],
+      "additionalProperties": false
+    },
+    "subZone": {
+      "type": "string",
+      "enum": [
+        "yellow-public",
+        "yellow-internal",
+        "red-hub",
+        "red-isolated"
+      ]
+    },
+    "soc": {
+      "type": "boolean"
+    },
+    "evaluation": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "string",
+          "enum": [
+            "synthetic",
+            "non-sensitive",
+            "personal",
+            "sensitive"
+          ]
+        },
+        "expiresOn": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      },
+      "required": [
+        "data",
+        "expiresOn"
+      ],
+      "additionalProperties": false
+    },
+    "environments": {
+      "maxItems": 3,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "dev",
+              "test",
+              "prod"
+            ]
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "basic",
+              "standard",
+              "premium"
+            ]
+          },
+          "subscriptionId": {
+            "default": "",
+            "type": "string",
+            "maxLength": 400
+          }
+        },
+        "required": [
+          "name",
+          "level",
+          "subscriptionId"
+        ]
+      }
+    },
+    "prodOnlyApproval": {
+      "type": "object",
+      "properties": {
+        "approvedBy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        }
+      },
+      "required": [
+        "approvedBy",
+        "approvedAt"
+      ],
+      "additionalProperties": false
+    },
+    "network": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "apps": {
+      "maxItems": 50,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "default": "",
+            "type": "string",
+            "maxLength": 400
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "web",
+              "api",
+              "worker"
+            ]
+          },
+          "repository": {
+            "default": "",
+            "type": "string",
+            "maxLength": 400
+          },
+          "port": {
+            "default": 8080,
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "hostName": {
+            "default": "",
+            "type": "string",
+            "maxLength": 400
+          },
+          "healthPath": {
+            "default": "",
+            "type": "string",
+            "maxLength": 400
+          },
+          "settings": {
+            "default": [],
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "type": "string",
+                  "maxLength": 400
+                },
+                "secret": {
+                  "default": false,
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name",
+                "secret"
+              ]
+            }
+          },
+          "easyAuth": {
+            "default": false,
+            "type": "boolean"
+          },
+          "database": {
+            "default": false,
+            "type": "boolean"
+          },
+          "ai": {
+            "default": false,
+            "type": "boolean"
+          },
+          "migrationJob": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "command": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 400
+                  }
+                },
+                "required": [
+                  "command"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "certificateSource": {
+            "type": "string",
+            "enum": [
+              "customer-pfx",
+              "key-vault-secret"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "kind",
+          "repository",
+          "port",
+          "hostName",
+          "healthPath",
+          "settings",
+          "easyAuth",
+          "database",
+          "ai",
+          "migrationJob"
+        ]
+      }
+    },
+    "services": {
+      "type": "object",
+      "properties": {
+        "dnsOwnerRole": {
+          "default": "customer-dns-mail",
+          "type": "string",
+          "enum": [
+            "customer-dns-mail",
+            "customer-platform"
+          ]
+        },
+        "mail": {
+          "default": {
+            "mode": "none",
+            "senderDomain": ""
+          },
+          "type": "object",
+          "properties": {
+            "mode": {
+              "default": "none",
+              "type": "string",
+              "enum": [
+                "none",
+                "acs-email",
+                "m365-connector"
+              ]
+            },
+            "senderDomain": {
+              "default": "",
+              "type": "string",
+              "maxLength": 400
+            }
+          },
+          "required": [
+            "mode",
+            "senderDomain"
+          ]
+        }
+      },
+      "required": [
+        "dnsOwnerRole",
+        "mail"
+      ]
+    },
+    "foundry": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "type": "boolean"
+        },
+        "models": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          }
+        },
+        "level": {
+          "type": "string",
+          "enum": [
+            "basic",
+            "premium"
+          ]
+        },
+        "tokensPerMinute": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "monthlyTokenQuota": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "totalTokensPerMinute": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "totalMonthlyTokenQuota": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "enabled",
+        "models"
+      ]
+    },
+    "delivery": {
+      "type": "object",
+      "properties": {
+        "channel": {
+          "type": "string",
+          "enum": [
+            "github",
+            "azure-devops",
+            "bicep"
+          ]
+        },
+        "host": {
+          "type": "string"
+        },
+        "organization": {
+          "default": "",
+          "type": "string",
+          "maxLength": 400
+        },
+        "project": {
+          "default": "",
+          "type": "string",
+          "maxLength": 400
+        },
+        "repository": {
+          "default": "",
+          "type": "string",
+          "maxLength": 400
+        }
+      },
+      "required": [
+        "channel"
+      ]
+    },
+    "dataPlatform": {}
+  },
+  "required": [
+    "schemaVersion",
+    "customer",
+    "solution",
+    "tenantId",
+    "zone",
+    "region",
+    "environments",
+    "apps"
+  ]
+}

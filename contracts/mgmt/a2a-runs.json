@@ -1,0 +1,1264 @@
+{
+  "$comment": "Generated from packages/shared/src/schemas/a2a.ts by pnpm contracts:export. Do not edit.",
+  "schemaVersion": 1,
+  "protocolVersion": "1.0",
+  "binding": "JSONRPC",
+  "endpointPath": "/api/v1/a2a",
+  "agentCardPath": "/api/v1/a2a/.well-known/agent-card.json",
+  "authentication": "Authorization: Bearer <Replatform MCP key for one solution>; starting and cancelling need a key.",
+  "methods": [
+    "SendMessage",
+    "GetTask",
+    "CancelTask"
+  ],
+  "skills": {
+    "start": "start-replatform-run",
+    "get": "get-replatform-run",
+    "cancel": "cancel-replatform-run"
+  },
+  "errorCodes": {
+    "parse": -32700,
+    "invalidRequest": -32600,
+    "methodNotFound": -32601,
+    "invalidParams": -32602,
+    "internal": -32603,
+    "taskNotFound": -32001,
+    "taskNotCancelable": -32002,
+    "unsupportedOperation": -32004,
+    "forbidden": -32010,
+    "conflict": -32011,
+    "unavailable": -32012
+  },
+  "startInput": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      {
+        "type": "object",
+        "properties": {
+          "skill": {
+            "type": "string",
+            "const": "start-replatform-run"
+          },
+          "engagementId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          }
+        },
+        "required": [
+          "skill",
+          "engagementId"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "skill": {
+            "type": "string",
+            "const": "start-replatform-run"
+          },
+          "engagement": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "integrated"
+                  },
+                  "customerId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "solutionId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "sourceConnectionId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "requestedZone": {
+                    "type": "string",
+                    "enum": [
+                      "green",
+                      "yellow",
+                      "red"
+                    ]
+                  },
+                  "environmentLevels": {
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "dev",
+                            "test",
+                            "prod"
+                          ]
+                        },
+                        "level": {
+                          "type": "string",
+                          "enum": [
+                            "basic",
+                            "standard",
+                            "premium"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "level"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "placement": {
+                    "type": "string",
+                    "enum": [
+                      "a-shared",
+                      "a-dedicated",
+                      "b-caf",
+                      "b-public"
+                    ]
+                  },
+                  "region": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 40,
+                    "pattern": "^[a-z][a-z0-9-]*$"
+                  },
+                  "audience": {
+                    "type": "string",
+                    "enum": [
+                      "internal",
+                      "external",
+                      "public"
+                    ]
+                  },
+                  "archetype": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "corp",
+                          "online",
+                          "public"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "ownership": {
+                    "type": "string",
+                    "enum": [
+                      "platform-vended",
+                      "existing-compliant",
+                      "itm8-managed",
+                      "prototype-isolated"
+                    ]
+                  },
+                  "azureAccessMode": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "read-only"
+                    ]
+                  },
+                  "dataClassification": {
+                    "type": "string",
+                    "enum": [
+                      "synthetic",
+                      "non-personal",
+                      "personal",
+                      "special-category",
+                      "regulated",
+                      "unknown"
+                    ]
+                  },
+                  "ai": {
+                    "type": "object",
+                    "properties": {
+                      "usesAi": {
+                        "type": "boolean"
+                      },
+                      "provider": {
+                        "type": "string",
+                        "enum": [
+                          "azure",
+                          "non-azure",
+                          "unknown"
+                        ]
+                      },
+                      "deployment": {
+                        "type": "string",
+                        "enum": [
+                          "regional-standard",
+                          "data-zone-standard",
+                          "global",
+                          "unknown"
+                        ]
+                      },
+                      "promptLogging": {
+                        "type": "boolean"
+                      },
+                      "consentRecorded": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "usesAi",
+                      "provider",
+                      "deployment",
+                      "promptLogging",
+                      "consentRecorded"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "platform": {
+                    "type": "object",
+                    "properties": {
+                      "applicationHost": {
+                        "type": "string",
+                        "enum": [
+                          "container-apps",
+                          "app-service",
+                          "functions",
+                          "static-web-apps",
+                          "aks",
+                          "fabric",
+                          "other"
+                        ]
+                      },
+                      "platformGaps": {
+                        "maxItems": 20,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "capability": {
+                              "type": "string",
+                              "enum": [
+                                "container-apps",
+                                "app-service",
+                                "functions",
+                                "static-web-apps",
+                                "aks",
+                                "fabric",
+                                "other"
+                              ]
+                            },
+                            "reason": {
+                              "type": "string",
+                              "enum": [
+                                "not-in-template",
+                                "customer-foundation-missing",
+                                "shared-resource-unsupported",
+                                "unknown"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "capability",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "sharedResources": {
+                        "maxItems": 30,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "container-apps",
+                                "postgresql",
+                                "application-gateway",
+                                "registry",
+                                "foundry",
+                                "key-vault",
+                                "log-analytics",
+                                "other"
+                              ]
+                            },
+                            "mode": {
+                              "type": "string",
+                              "enum": [
+                                "shared",
+                                "dedicated",
+                                "unknown"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "mode"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "applicationHost",
+                      "platformGaps",
+                      "sharedResources"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "requestReason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 280
+                  },
+                  "parentEngagementId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "mode",
+                  "customerId",
+                  "solutionId",
+                  "sourceConnectionId",
+                  "requestedZone",
+                  "environmentLevels",
+                  "placement",
+                  "region",
+                  "audience",
+                  "archetype",
+                  "ownership",
+                  "azureAccessMode",
+                  "dataClassification",
+                  "ai",
+                  "platform",
+                  "requestReason"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "offline"
+                  },
+                  "customerId": {
+                    "type": "null"
+                  },
+                  "solutionId": {
+                    "type": "null"
+                  },
+                  "sourceConnectionId": {
+                    "type": "null"
+                  },
+                  "sourceTarget": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "const": "itm8-ghe"
+                          },
+                          "host": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "namespace": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "repository": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "commitSha": {
+                            "type": "string",
+                            "pattern": "^([a-f0-9]{40}|[a-f0-9]{64})$"
+                          },
+                          "defaultBranch": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          }
+                        },
+                        "required": [
+                          "target",
+                          "host",
+                          "namespace",
+                          "repository",
+                          "commitSha"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "const": "customer-github"
+                          },
+                          "host": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "namespace": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "repository": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "commitSha": {
+                            "type": "string",
+                            "pattern": "^([a-f0-9]{40}|[a-f0-9]{64})$"
+                          },
+                          "defaultBranch": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          }
+                        },
+                        "required": [
+                          "target",
+                          "host",
+                          "namespace",
+                          "repository",
+                          "commitSha"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "const": "gitlab"
+                          },
+                          "host": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "namespace": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "repository": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "commitSha": {
+                            "type": "string",
+                            "pattern": "^([a-f0-9]{40}|[a-f0-9]{64})$"
+                          },
+                          "defaultBranch": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          }
+                        },
+                        "required": [
+                          "target",
+                          "host",
+                          "namespace",
+                          "repository",
+                          "commitSha"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "const": "bitbucket"
+                          },
+                          "host": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "namespace": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "repository": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "commitSha": {
+                            "type": "string",
+                            "pattern": "^([a-f0-9]{40}|[a-f0-9]{64})$"
+                          },
+                          "defaultBranch": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          }
+                        },
+                        "required": [
+                          "target",
+                          "host",
+                          "namespace",
+                          "repository",
+                          "commitSha"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "const": "azure-devops"
+                          },
+                          "host": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "namespace": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "repository": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "commitSha": {
+                            "type": "string",
+                            "pattern": "^([a-f0-9]{40}|[a-f0-9]{64})$"
+                          },
+                          "defaultBranch": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "project": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          }
+                        },
+                        "required": [
+                          "target",
+                          "host",
+                          "namespace",
+                          "repository",
+                          "commitSha",
+                          "project"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "const": "zip-xml"
+                          },
+                          "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          },
+                          "origin": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "exporter": {
+                            "type": "object",
+                            "properties": {
+                              "tool": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 80
+                              },
+                              "version": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 40
+                              }
+                            },
+                            "required": [
+                              "tool",
+                              "version"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "target",
+                          "sha256",
+                          "origin"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "const": "handover-only"
+                          }
+                        },
+                        "required": [
+                          "target"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "sourceRevision": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^([a-f0-9]{40}|[a-f0-9]{64})$"
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      }
+                    ]
+                  },
+                  "requestedZone": {
+                    "type": "string",
+                    "enum": [
+                      "green",
+                      "yellow",
+                      "red"
+                    ]
+                  },
+                  "environmentLevels": {
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "dev",
+                            "test",
+                            "prod"
+                          ]
+                        },
+                        "level": {
+                          "type": "string",
+                          "enum": [
+                            "basic",
+                            "standard",
+                            "premium"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "level"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "placement": {
+                    "type": "string",
+                    "enum": [
+                      "a-shared",
+                      "a-dedicated",
+                      "b-caf",
+                      "b-public"
+                    ]
+                  },
+                  "region": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 40,
+                    "pattern": "^[a-z][a-z0-9-]*$"
+                  },
+                  "audience": {
+                    "type": "string",
+                    "enum": [
+                      "internal",
+                      "external",
+                      "public"
+                    ]
+                  },
+                  "archetype": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "corp",
+                          "online",
+                          "public"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "ownership": {
+                    "type": "string",
+                    "enum": [
+                      "platform-vended",
+                      "existing-compliant",
+                      "itm8-managed",
+                      "prototype-isolated"
+                    ]
+                  },
+                  "azureAccessMode": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "read-only"
+                    ]
+                  },
+                  "dataClassification": {
+                    "type": "string",
+                    "enum": [
+                      "synthetic",
+                      "non-personal",
+                      "personal",
+                      "special-category",
+                      "regulated",
+                      "unknown"
+                    ]
+                  },
+                  "ai": {
+                    "type": "object",
+                    "properties": {
+                      "usesAi": {
+                        "type": "boolean"
+                      },
+                      "provider": {
+                        "type": "string",
+                        "enum": [
+                          "azure",
+                          "non-azure",
+                          "unknown"
+                        ]
+                      },
+                      "deployment": {
+                        "type": "string",
+                        "enum": [
+                          "regional-standard",
+                          "data-zone-standard",
+                          "global",
+                          "unknown"
+                        ]
+                      },
+                      "promptLogging": {
+                        "type": "boolean"
+                      },
+                      "consentRecorded": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "usesAi",
+                      "provider",
+                      "deployment",
+                      "promptLogging",
+                      "consentRecorded"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "platform": {
+                    "type": "object",
+                    "properties": {
+                      "applicationHost": {
+                        "type": "string",
+                        "enum": [
+                          "container-apps",
+                          "app-service",
+                          "functions",
+                          "static-web-apps",
+                          "aks",
+                          "fabric",
+                          "other"
+                        ]
+                      },
+                      "platformGaps": {
+                        "maxItems": 20,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "capability": {
+                              "type": "string",
+                              "enum": [
+                                "container-apps",
+                                "app-service",
+                                "functions",
+                                "static-web-apps",
+                                "aks",
+                                "fabric",
+                                "other"
+                              ]
+                            },
+                            "reason": {
+                              "type": "string",
+                              "enum": [
+                                "not-in-template",
+                                "customer-foundation-missing",
+                                "shared-resource-unsupported",
+                                "unknown"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "capability",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "sharedResources": {
+                        "maxItems": 30,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "container-apps",
+                                "postgresql",
+                                "application-gateway",
+                                "registry",
+                                "foundry",
+                                "key-vault",
+                                "log-analytics",
+                                "other"
+                              ]
+                            },
+                            "mode": {
+                              "type": "string",
+                              "enum": [
+                                "shared",
+                                "dedicated",
+                                "unknown"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "mode"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "applicationHost",
+                      "platformGaps",
+                      "sharedResources"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "requestReason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 280
+                  },
+                  "parentEngagementId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "mode",
+                  "customerId",
+                  "solutionId",
+                  "sourceConnectionId",
+                  "sourceTarget",
+                  "sourceRevision",
+                  "requestedZone",
+                  "environmentLevels",
+                  "placement",
+                  "region",
+                  "audience",
+                  "archetype",
+                  "ownership",
+                  "azureAccessMode",
+                  "dataClassification",
+                  "ai",
+                  "platform",
+                  "requestReason"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "skill",
+          "engagement"
+        ],
+        "additionalProperties": false
+      }
+    ]
+  },
+  "taskArtifactData": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "engagementId": {
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+      },
+      "runId": {
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+      },
+      "engagementStatus": {
+        "type": "string",
+        "maxLength": 40
+      },
+      "state": {
+        "type": "string",
+        "maxLength": 40
+      },
+      "stateLabel": {
+        "type": "string",
+        "maxLength": 160
+      },
+      "issueNumber": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "issueUrl": {
+        "type": "string",
+        "maxLength": 400
+      },
+      "pullRequest": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "number": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "url": {
+                "type": "string",
+                "maxLength": 400
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "closed",
+                  "merged"
+                ]
+              },
+              "draft": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "number",
+              "url",
+              "state",
+              "draft"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "assessment": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "status": {
+                "type": "string",
+                "maxLength": 40
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              }
+            },
+            "required": [
+              "id",
+              "version",
+              "status",
+              "createdAt"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "humanSteps": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "repository-approval",
+            "zone-confirmation",
+            "plan-approval"
+          ]
+        }
+      },
+      "appProposal": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "assessmentId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "assessmentVersion": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "proposal": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "type": "number",
+                    "const": 1
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "quick-scan",
+                      "replatform-agent",
+                      "wizard-agent"
+                    ]
+                  },
+                  "apps": {
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{0,9}$"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "web",
+                            "api",
+                            "worker"
+                          ]
+                        },
+                        "root": {
+                          "type": "string",
+                          "maxLength": 500
+                        },
+                        "port": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 65535
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "healthPath": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "maxLength": 200
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "settings": {
+                          "maxItems": 100,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "maxLength": 120
+                              },
+                              "secret": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "secret"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "database": {
+                          "type": "boolean"
+                        },
+                        "ai": {
+                          "type": "boolean"
+                        },
+                        "confidence": {
+                          "type": "string",
+                          "enum": [
+                            "high",
+                            "medium",
+                            "low"
+                          ]
+                        },
+                        "evidence": {
+                          "maxItems": 50,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "enum": [
+                                  "app",
+                                  "kind",
+                                  "port",
+                                  "healthPath",
+                                  "settings",
+                                  "database",
+                                  "ai"
+                                ]
+                              },
+                              "path": {
+                                "type": "string",
+                                "maxLength": 500
+                              },
+                              "note": {
+                                "type": "string",
+                                "maxLength": 200
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "path",
+                              "note"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "kind",
+                        "root",
+                        "port",
+                        "healthPath",
+                        "settings",
+                        "database",
+                        "ai",
+                        "confidence",
+                        "evidence"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "notes": {
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 300
+                    }
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "source",
+                  "apps",
+                  "notes"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "assessmentId",
+              "assessmentVersion",
+              "proposal"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "required": [
+      "engagementId",
+      "runId",
+      "engagementStatus",
+      "state",
+      "stateLabel",
+      "issueNumber",
+      "issueUrl",
+      "pullRequest",
+      "assessment",
+      "humanSteps"
+    ],
+    "additionalProperties": false
+  }
+}
