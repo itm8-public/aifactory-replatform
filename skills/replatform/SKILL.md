@@ -22,6 +22,7 @@ Read these references before starting and whenever a decision becomes uncertain:
 - [reference/decisions.md](reference/decisions.md): ADRs and human decisions
 - [reference/build-profile.md](reference/build-profile.md): apps built with the `aifactory-code` plugin
 - [reference/validation.md](reference/validation.md): honest check reporting
+- [reference/governance-gates.md](reference/governance-gates.md): itm8's zone-aware governance and security gates (ownership, production readiness, security acceptance, POC-to-production)
 - [reference/wizard-contract.md](reference/wizard-contract.md): the verified Management App Wizard v1 contract and refusal gates
 - [reference/engagement-input.md](reference/engagement-input.md): what the Wizard already knows (C1); read it first and never ask it again
 - [reference/app-proposal.md](reference/app-proposal.md): the typed apps the plan carries (C2), each value with evidence
@@ -175,6 +176,13 @@ discovery fit/prefill, default region, or missing quota as a zone, region, or ca
    Management App-recorded human answer. Set the plan to `questions`, commit the evidence only, and
    **stop**.
 
+Also evaluate itm8's governance gates for the suggested zone
+([reference/governance-gates.md](reference/governance-gates.md)): record the ownership gate (a
+designated system owner **and** business owner — the designation and role, never a person's name)
+and begin the POC-to-production assessment. At Green only the free checks apply; at Yellow or Red a
+missing owner or an open required gate is one of the questions you post, and the plan stays at
+`questions`.
+
 If A1 (a prohibited AI practice) is yes, say so plainly and stop the whole run.
 
 ## Phase 3: Plan
@@ -206,7 +214,10 @@ When the owner answers:
    and remaining questions. Put the apps you found in `assessment.draft.appProposal` (C2, typed,
    `source: "replatform-agent"`, every value with a file and a reason as in
    [reference/app-proposal.md](reference/app-proposal.md)); `targetSpecDelta` keeps the free-text notes. Write `.aifactory/replatform-plan.md` from
-   [templates/plan.md](templates/plan.md).
+   [templates/plan.md](templates/plan.md). Record the applied zone and every in-force governance
+   gate in `governanceGates` (plan-only) and the plan's Governance gates section, following
+   [reference/governance-gates.md](reference/governance-gates.md); write the solution's security
+   requirements as acceptance criteria.
 8. Run the local `validate-plan` command supplied with this playbook. Fix every validation error.
    Then run `npm run analyze-plan -- .aifactory/replatform-plan.json`, a read-only consistency
    check across findings, plan items, target-spec fields, paths and questions. Fix every `CRITICAL`
@@ -235,7 +246,11 @@ When the owner answers:
 5. Run the six checks in [reference/app-changes.md](reference/app-changes.md#checks-before-the-pull-request-leaves-draft)
    and record every command/result in `.aifactory/validation-report.md` from
    [templates/validation-report.md](templates/validation-report.md). Do not report skipped or
-   unavailable checks as passing.
+   unavailable checks as passing. Also verify the Production Readiness Checklist and the security
+   acceptance criteria for the suggested zone
+   ([reference/governance-gates.md](reference/governance-gates.md)): at Green only the free checks
+   are required; at Yellow or Red every in-force gate must pass. A failed or not-run blocking gate
+   keeps the pull request draft; record it in the validation report's Governance gates section.
 6. Run `npm run validate-implementation -- .aifactory/replatform-plan.json`; it checks that every
    changed file is inside `allowedPaths` and maps to an `APP-###` item. Then run
    `npm run converge -- .aifactory/replatform-plan.json`: it lists plan items with no change yet.

@@ -3,6 +3,23 @@
 All notable changes to the `aifactory-replatform` plugin are recorded here. The plugin version in
 `.claude-plugin/plugin.json` and the release tag must match.
 
+## 0.4.0
+
+### Added
+
+- **Zone-aware governance and release gates** ([reference/governance-gates.md](skills/replatform/reference/governance-gates.md)):
+  itm8's ownership gate, Production Readiness Checklist, security acceptance criteria, and the five
+  POC-to-production gates, folded into the assessment. GREEN runs the free automated checks only;
+  YELLOW and RED run the full set, with blocking gates keeping the pull request draft. Recorded in a
+  new plan-only `governanceGates` section and in the plan and validation-report templates. Additive:
+  `contracts/` and the posted assessment shape are unchanged.
+
+### Changed
+
+- Naming: the canonical order is recorded — customer Azure artefacts are customer-first
+  (`customer-workload-region-type[-qualifier]-environment`); Power Platform and Entra use
+  `aif-<cust>-<zone>-<type>`.
+
 ## 0.3.1
 
 ### Changed

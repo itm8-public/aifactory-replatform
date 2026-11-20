@@ -224,6 +224,11 @@ Functions, Static Web Apps or AKS template exists. See [hosting-decision.md](hos
 
 Use the term **workload landing zone**, not "AI landing zone".
 
+The canonical naming order is decided: customer Azure artefacts are **customer-first**,
+`customer-workload-region-type[-qualifier]-environment`; Power Platform and Entra artefacts use
+`aif-<cust>-<zone>-<type>`. Where the assessment or plan references or recommends a resource name,
+use that order.
+
 The Management App contract was checked against the itm8 Management App repository, at the commit
 pinned in [contracts/mgmt.lock.json](../../../contracts/mgmt.lock.json).
 
