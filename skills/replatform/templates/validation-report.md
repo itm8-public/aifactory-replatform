@@ -34,6 +34,28 @@
 {Authentication, authorization, readiness, logs, rollout, rollback, and restore results. Record
 commands, log links, and any result that was not run.}
 
+## Governance and release gates
+
+Zone: **{green | yellow | red}**. Green = free checks only; Yellow/Red = full set (see
+[reference/governance-gates.md](../reference/governance-gates.md)). A failed or not-run **blocking**
+gate keeps the pull request draft.
+
+| Gate | In force | Blocking | Criterion / method | Result | Evidence |
+|---|---|---|---|---|---|
+| GATE-OWN (system + business owner designated) | | | | {PASS / FAIL / WARN / SKIPPED / NOT RUN / N/A} | |
+| GATE-PRC-secrets | | | | | |
+| GATE-PRC-io-validation | | | | | |
+| GATE-PRC-deps | | | | | |
+| GATE-PRC-tests | | | | | |
+| GATE-PRC-logging | | | | | |
+| GATE-PRC-rollback | | | | | |
+| GATE-SEC (security acceptance criteria) | | | | | |
+| GATE-P2P-business-viability | | | | | |
+| GATE-P2P-data-security-readiness | | | | | |
+| GATE-P2P-technical-viability | | | | | |
+| GATE-P2P-production-readiness | | | | | |
+| GATE-P2P-value-readiness | | | | | |
+
 ## Exceptions and residual risk
 
 {Every failure, warning, skipped check, or not-run check, who accepted it, and why the PR remains

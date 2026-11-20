@@ -99,6 +99,33 @@ and who owns each action. Write `Not applicable` only with evidence.}
 | # | Question | Answer | By |
 |---|---|---|---|
 
+## Governance gates (zone-aware)
+
+Applied for suggested zone **{green | yellow | red}** (a person confirms the zone). Green runs the
+free checks only; Yellow and Red run the full set. Machine-readable in `governanceGates`. See
+[reference/governance-gates.md](../reference/governance-gates.md).
+
+| Gate | Group | In force | Blocking | Status | Owner role | Evidence |
+|---|---|---|---|---|---|---|
+| GATE-OWN | ownership | {yes/no} | {yes/no} | {PASS/FAIL/WARN/SKIPPED/NOT RUN/N/A} | system & business owner | {ids or mgmt-app ref} |
+| GATE-PRC-secrets | production-readiness | | | | | |
+| GATE-PRC-io-validation | production-readiness | | | | | |
+| GATE-PRC-deps | production-readiness | | | | | |
+| GATE-PRC-tests | production-readiness | | | | | |
+| GATE-PRC-logging | production-readiness | | | | | |
+| GATE-PRC-rollback | production-readiness | | | | | |
+| GATE-SEC | security-acceptance | | | | | |
+| GATE-P2P-business-viability | poc-to-production | | | | | |
+| GATE-P2P-data-security-readiness | poc-to-production | | | | | |
+| GATE-P2P-technical-viability | poc-to-production | | | | | |
+| GATE-P2P-production-readiness | poc-to-production | | | | | |
+| GATE-P2P-value-readiness | poc-to-production | | | | | |
+
+Security acceptance criteria (Yellow/Red — each must be `PASS` before release review):
+
+| Criterion | Verification method | Result |
+|---|---|---|
+
 ## Planned validation
 
 {Required build, tests, SAST, IaC, secret, dependency, SBOM, image, migration, restore, and

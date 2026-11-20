@@ -249,6 +249,35 @@
       "type": "array",
       "maxItems": 30,
       "items": { "$ref": "#/$defs/decisionRecord" }
+    },
+    "governanceGates": {
+      "description": "Plan-only itm8 governance/security gates, applied zone-aware (GREEN: free automated checks only; YELLOW/RED: full set). Additive and not part of the posted assessment. See reference/governance-gates.md.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["appliedZone", "gates"],
+      "properties": {
+        "appliedZone": { "enum": ["green", "yellow", "red"], "description": "The suggested zone the gate set was applied for; confirmedZone remains the person's." },
+        "gates": {
+          "type": "array",
+          "maxItems": 40,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "group", "status"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^GATE-[A-Z0-9-]+$" },
+              "group": { "enum": ["ownership", "production-readiness", "security-acceptance", "poc-to-production"] },
+              "title": { "type": "string", "maxLength": 200 },
+              "appliesAtZone": { "type": "boolean", "description": "Whether the gate is in force for appliedZone (false = out of scope at this zone, e.g. a human gate at GREEN)." },
+              "blocking": { "type": "boolean", "description": "Whether an unmet gate keeps the pull request draft or blocks release review." },
+              "status": { "enum": ["PASS", "FAIL", "WARN", "SKIPPED", "NOT RUN", "N/A"] },
+              "ownerRole": { "type": "string", "maxLength": 120, "description": "Responsible role (for example 'system owner', 'business owner', 'security reviewer'); never a person's name." },
+              "evidence": { "type": "array", "maxItems": 20, "items": { "type": "string", "minLength": 1, "maxLength": 300 }, "description": "Evidence ids or check pointers. Never personal names/emails; owner designation is a Management App reference." },
+              "note": { "type": "string", "maxLength": 1000 }
+            }
+          }
+        }
+      }
     }
   },
   "$defs": {
