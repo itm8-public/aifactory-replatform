@@ -202,6 +202,137 @@
         "additionalProperties": false
       }
     },
+    "edge": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "none",
+            "app-gateway",
+            "front-door"
+          ]
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "new",
+            "existing"
+          ]
+        },
+        "existingId": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "allowedIps": {
+          "maxItems": 20,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 60
+          }
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "foundry": {
+      "type": "object",
+      "properties": {
+        "gateway": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "new",
+                "existing"
+              ]
+            },
+            "existingId": {
+              "type": "string",
+              "maxLength": 400
+            },
+            "principalId": {
+              "type": "string",
+              "maxLength": 60
+            },
+            "tier": {
+              "type": "string",
+              "enum": [
+                "basic-v2",
+                "standard-v2",
+                "premium-v2"
+              ]
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "gateway"
+      ],
+      "additionalProperties": false
+    },
+    "database": {
+      "type": "string",
+      "enum": [
+        "postgres",
+        "cosmos-nosql"
+      ]
+    },
+    "platformKinds": {
+      "minItems": 1,
+      "maxItems": 3,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "azure-apps",
+          "fabric",
+          "power-platform"
+        ]
+      }
+    },
+    "addressSpace": {
+      "type": "string"
+    },
+    "registryAccess": {
+      "type": "string",
+      "enum": [
+        "private",
+        "public"
+      ]
+    },
+    "sharedResources": {
+      "type": "object",
+      "properties": {
+        "subscriptionId": {
+          "type": "string"
+        },
+        "resourceGroup": {
+          "type": "string"
+        },
+        "appGatewayId": {
+          "type": "string"
+        },
+        "frontDoorId": {
+          "type": "string"
+        },
+        "registryId": {
+          "type": "string"
+        },
+        "apiManagementId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "source": {
       "anyOf": [
         {

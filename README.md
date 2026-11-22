@@ -97,7 +97,7 @@ It also pins `run-input.schema.json` (the context bundle a sandbox run reads fro
 `run-bundle.schema.json` (what a sandbox run hands back). The plugin validates a sandbox run's input
 against the pinned copy directly (see
 [skills/replatform/reference/sandbox-mode.md](skills/replatform/reference/sandbox-mode.md)). The
-current pin is provisional: it is a Management App lane commit that is not on `main` yet.
+pin is a commit on the Management App's `main`; `contracts/mgmt.lock.json` names it.
 
 ## Output contract
 

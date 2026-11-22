@@ -3,6 +3,27 @@
 All notable changes to the `aifactory-replatform` plugin are recorded here. The plugin version in
 `.claude-plugin/plugin.json` and the release tag must match.
 
+## 0.4.1
+
+### Changed
+
+- **Management App contracts re-pinned** to a commit on the Management App's `main` (2026-11-21);
+  `contracts/mgmt.lock.json` names it and `contracts/mgmt/` is again its byte-for-byte copy. Every
+  change is additive: C1 and the run input gain the optional `edge`, `foundry.gateway`, `database`,
+  `platformKinds`, `addressSpace`, `registryAccess` and `sharedResources`; the Wizard spec (C3)
+  gains `edge`, `database`, `foundry.gateway`, `delivery.reporting`, `platformKinds`, `fabric`,
+  `powerPlatform` and `landingZone` (with the optional `sreAgent`, `placement` `shared` or
+  `solution`); the run input gains the intent `security-audit`, `model.resource`, the limits
+  `maxTotalTokens`, `maxCostUsd` and `maxQuestions`, `answers` and `priorAudit`, and
+  `prerequisiteRoles` holds up to 18 with new customer and use-case roles; the run bundle gains
+  the same intent, `model.resource` and limits and the failure classes `token-limit` and
+  `cost-limit`; the MCP tool registry gains new package kinds (including `optional-questions`),
+  contact roles and Wizard proposal fields; `personal-data-report.schema.json` is new. The
+  playbook's schemas, validators and sandbox gate are unchanged: its Wizard spec projection already
+  accepts additive fields, its C1 mirror (`engagement-input.schema.json`) does not carry the new C1
+  fields yet and still refuses them, and the sandbox gate still treats every plan question as
+  unanswered.
+
 ## 0.4.0
 
 ### Added

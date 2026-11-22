@@ -37,7 +37,8 @@
         "assess",
         "plan",
         "rebuild",
-        "security-only"
+        "security-only",
+        "security-audit"
       ]
     },
     "status": {
@@ -61,7 +62,9 @@
             "sandbox-error",
             "agent-error",
             "validation-failed",
-            "gate-blocked"
+            "gate-blocked",
+            "token-limit",
+            "cost-limit"
           ]
         },
         {
@@ -152,6 +155,10 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 100
+        },
+        "resource": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
         }
       },
       "required": [
@@ -315,6 +322,20 @@
             "runTimeoutSeconds": {
               "type": "integer",
               "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "maxTotalTokens": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "maxCostUsd": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "maxQuestions": {
+              "type": "integer",
+              "minimum": 0,
               "maximum": 9007199254740991
             }
           },

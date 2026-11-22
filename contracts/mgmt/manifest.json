@@ -5,7 +5,7 @@
       "contract": "C1",
       "schemaVersion": 1,
       "source": "packages/shared/src/schemas/engagementInput.ts (engagementInputSchema)",
-      "sha256": "96894866446ab6ed12c0641d746810bc1f69682628e9a8bdf5f3f5a4ca9daa03"
+      "sha256": "a3c01bb3349e438346cb60b59b621e0f9bb5b3b6e5b9040db83a3f66676fb5cd"
     },
     "app-proposal.schema.json": {
       "contract": "C2",
@@ -17,7 +17,7 @@
       "contract": "C3",
       "schemaVersion": "1",
       "source": "packages/shared/src/schemas/platform.ts (wizardSpecV1Schema)",
-      "sha256": "84f0d4ef57edf758e840b05916823ed4e1f5e1f6e9be47b75671eaa941da46f8"
+      "sha256": "3444974edf5de4def80905124c8e3cd289fd222c33bf6255c9ea1ff625d5ef64"
     },
     "replatform-assessment.schema.json": {
       "contract": "assessment",
@@ -29,7 +29,7 @@
       "contract": "mcp-tools",
       "schemaVersion": 1,
       "source": "packages/shared/src/schemas/replatformTools.ts (REPLATFORM_MCP_TOOLS)",
-      "sha256": "46ed6fec2ff0e0846d294527fa1d3a66f1a59a0da0522d24638491ef42c77116"
+      "sha256": "b8d418f61387221da5613524dde1b39cb96b614fa03931b81b030877ed028649"
     },
     "knowledge-mcp-tools.json": {
       "contract": "knowledge-mcp-tools",
@@ -41,7 +41,7 @@
       "contract": "run-bundle",
       "schemaVersion": 1,
       "source": "packages/shared/src/schemas/replatformRunBundle.ts (replatformRunBundleManifestSchema)",
-      "sha256": "8461a9e460c5fa4d4891300eb378a846ff6df0a7846810bb33d29a480e12e9e3"
+      "sha256": "dda7ef6f6c869c2d0c5f33c5928494b7591a2dde9e6ecad503a5e40a223f1cf7"
     },
     "a2a-runs.json": {
       "contract": "a2a-runs",
@@ -59,7 +59,13 @@
       "contract": "run-input",
       "schemaVersion": 1,
       "source": "packages/shared/src/schemas/replatformRunInput.ts (replatformRunInputSchema)",
-      "sha256": "369a8533f1812b3e6807bb11c2939f5af8a89340fdaaac6f3fb2a10979ec6f0a"
+      "sha256": "a2a513be08704953095edc7792671583944c830e630e4495f21cdef21d054afd"
+    },
+    "personal-data-report.schema.json": {
+      "contract": "personal-data-report",
+      "schemaVersion": 1,
+      "source": "packages/shared/src/schemas/personalData.ts (personalDataReportSchema)",
+      "sha256": "82d545ce5c0f6268981be458a64fada7d2bdaa68dbf5d3d843c34fc53f946c51"
     }
   }
 }
