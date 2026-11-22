@@ -36,10 +36,10 @@ export const DEFAULT_MARKER_PATH = '/etc/aifactory/sandbox-run.json';
 export const DEFAULT_PLAN_PATH = '.aifactory/replatform-plan.json';
 export const DEFAULT_RESULT_PATH = '.aifactory/sandbox-result.json';
 
-/** Owner decision OD-6: a run that cannot go on asks at most this many questions, then stops. */
+/** A run that cannot go on asks at most this many questions, then stops. */
 export const MAX_NEEDS_INPUT_QUESTIONS = 10;
 
-/** OD-3: customer code is not allowed yet. Everything else, including a missing class, is refused. */
+/** Customer code is not allowed yet. Everything else, including a missing class, is refused. */
 export const ALLOWED_SOURCE_CLASSES = ['synthetic', 'internal'];
 
 /**
@@ -222,7 +222,7 @@ export function checkRunInput(input) {
   }
   const sourceClass = input.source?.class;
   if (sourceClass === 'customer') {
-    refusals.push(refusal('source-class-customer', 'customer source code is not allowed in the sandbox yet (owner decision OD-3)'));
+    refusals.push(refusal('source-class-customer', 'customer source code is not allowed in the sandbox yet'));
   } else if (!ALLOWED_SOURCE_CLASSES.includes(sourceClass)) {
     refusals.push(refusal('source-class-not-allowed', `source.class must be one of ${ALLOWED_SOURCE_CLASSES.join(', ')}; a missing or unknown class is refused`));
   }

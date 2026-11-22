@@ -1,7 +1,7 @@
 {
   "name": "itm8-aifactory",
   "description": "itm8 AI Factory plugins for Claude Code",
-  "owner": { "name": "itm8 SE Digital Transformation" },
+  "owner": { "name": "itm8" },
   "metadata": { "description": "itm8 AI Factory plugins for Claude Code" },
   "plugins": [
     {

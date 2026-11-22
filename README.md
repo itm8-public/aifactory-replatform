@@ -189,6 +189,5 @@ and privacy rules as the local playbook.
   it conflicts with these documents; record the mismatch instead of inventing a third rule.
 - Do not process customer code with an AI model whose data-processing policy lacks the customer's
   consent.
-- The Management App control-plane and cross-repository integrations remain separate workstreams.
 - A local hook or validator is a guardrail, not an authorization boundary. Use protected branches,
   environment approvals, least-privilege identities, and platform controls as the actual boundary.

@@ -4,13 +4,12 @@ The rules the replatform agent must respect. They summarise the AI Factory desig
 the itm8 Management App repository ("the platform repo", an itm8-internal repository): its Wizard
 infrastructure templates, its Wizard design docs, and its shared contracts.
 
-Every architecture decision there is still **Proposed**, and neither wizard stack has run on Azure
-yet (the Wizard infrastructure templates). When the platform repo and this file disagree, the platform repo
-wins: say so in the plan and propose a fix to this file.
+Every architecture decision there is still **Proposed**. When the platform repo and this file
+disagree, the platform repo wins: say so in the plan and propose a fix to this file.
 
 ## What the agent never does
 
-From the Wizard platform-direction design and itm8 platform working sessions:
+From the Wizard platform-direction design:
 
 - Never set, confirm or lower a **risk zone**. Suggest one with evidence; a person confirms it.
 - Never review its own pull request or merge.
@@ -29,9 +28,9 @@ From the Wizard platform-direction design and itm8 platform working sessions:
 
 | Axis | Values | Who decides |
 |---|---|---|
-| Environment | `dev`, `test`, `prod` in the wizard (ADR-15 proposes the Azure segment `stg`) | Engine contract |
+| Environment | `dev`, `test`, `prod` in the wizard (a proposed naming and tagging decision adds the Azure segment `stg`) | Engine contract |
 | Service level | `basic`, `standard`, `premium`, per environment. Capacity only; never weakens the zone | Customer |
-| Risk zone | `green`, `yellow`, `red` | People: Cyber Defence Centre at gate I for Yellow and Red, delivery lead's attestation for Green |
+| Risk zone | `green`, `yellow`, `red` | People: itm8's security team before build for Yellow and Red, the delivery lead's attestation for Green |
 | Placement | `A-shared`, `A-dedicated`, `B-caf`, `B-public` | Delivery lead |
 
 Each control takes the **strictest** value of level, zone, environment and placement.
@@ -60,7 +59,7 @@ ingress protected only by EasyAuth; public access off on data services; Key Vaul
 protection; `swedencentral` and EU Data Zone models; security logs at least 90 days; actions
 pinned by SHA; images promoted by digest; plain Container Apps secrets refused outside dev.
 
-## Placement (ADR-14, ADR-12)
+## Placement
 
 | When | Placement |
 |---|---|
@@ -75,11 +74,11 @@ Refused: Red in A-shared or B-public; Premium in A-shared.
 ## Shared resources: reuse before create
 
 - **PostgreSQL**: a database on the shared server per environment for Small/Medium, Entra-only;
-  never for Red (ADR-13). The migration job's identity owns the schema; apps get data access only.
+  never for Red. The migration job's identity owns the schema; apps get data access only.
 - **Ingress**: one shared Application Gateway WAF v2 per environment; onboarding adds a listener and
-  pool. Never a gateway per app (ADR-07, ADR-12).
+  pool. Never a gateway per app.
 - **Registry**: shared in Mode A; Green may reuse an existing registry (`existingRegistryId`).
-- **Key Vault**: one per resource set; apps read secrets as Key Vault references through their identity (ADR-17).
+- **Key Vault**: one per resource set; apps read secrets as Key Vault references through their identity.
 - Say in the plan which existing resource each need maps to, or why a new one is required.
 
 ## Private DNS in a customer landing zone
@@ -88,7 +87,7 @@ From the itm8 network team and Microsoft's
 [Private Link and DNS integration at scale](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/private-link-and-dns-integration-at-scale).
 In a CAF landing zone the `privatelink.*` private DNS zones are central: they live in the customer's
 connectivity subscription, next to the hub and its DNS resolver, and belong to the platform team. A
-workload landing zone (for example a Corp `LZ4`) only creates private endpoints.
+workload landing zone (for example a Corp landing zone) only creates private endpoints.
 
 - **Never plan new `privatelink.*` zones** in the workload subscription or resource group, and never
   because the connectivity subscription is not visible. A second copy of a zone splits name
@@ -124,12 +123,10 @@ workload landing zone (for example a Corp `LZ4`) only creates private endpoints.
 - **Facts to ask for**, recorded in the CAF profile as "Private endpoint DNS"
   (`replatform_get_customer_caf_profile`): the subscription and resource group of the zones, which
   zones exist, whether `Deploy-Private-DNS-Zones` and `Deny-Private-DNS-Zones` are assigned above the
-  workload subscription, and the resolver. Never infer them from itm8's own landing zone, whose
-  connectivity resource group sits inside the workload subscription: that is not the ALZ layout and
-  is not a pattern to copy.
-- **The Factory template is not ready yet:** the Wizard's landing-zone network module still
-  creates its own privatelink zones and has no setting for central ones (the design calls them
-  `privateDnsZoneIds` and `dnsMode`, in the Wizard module catalogue). The Management App
+  workload subscription, and the resolver. Never infer them from another landing zone, itm8's own
+  included: its layout is not the customer's and is not a pattern to copy.
+- **The Factory template does not support central zones:** the Wizard's landing-zone network
+  module creates its own privatelink zones and has no setting for central ones. The Management App
   refuses an order whose customer keeps central zones. Say so in the plan as a blocker; never work
   around it.
 
@@ -202,7 +199,7 @@ What is created, changed and retired together shares a subscription (itm8 networ
 A customer may keep dev, test and prod in one subscription; the plan then separates them by resource
 group, tags and access groups, and says that cost per environment comes from tags, not the invoice.
 
-## AI processing policy (#9, draft 0.1.0)
+## AI processing policy (draft 0.1.0)
 
 Applies to the agent itself and to any AI the replatformed app uses.
 
@@ -233,17 +230,19 @@ The Management App contract was checked against the itm8 Management App reposito
 pinned in [contracts/mgmt.lock.json](../../../contracts/mgmt.lock.json).
 
 For **landing-zone resources** the current Wizard generates
-`<customer>-lz-<region>-<type>[-<qualifier>]-<environment>` (ADR-18). The customer code is 2–4
+`<customer>-lz-<region>-<type>[-<qualifier>]-<environment>`. The customer code is 2–4
 lowercase letters/digits, starts with a letter, and `itm8` is reserved. The Wizard maps region IDs
 to the approved abbreviations. Globally unique names get a suffix computed by Bicep; the agent
 must never invent that suffix or a landing-zone resource name. App resources inside the landing
-zone keep their solution-scoped names. ADR-18 is still **Proposed**; describe this as the
-current Wizard behavior, not a ratified enterprise standard. ADR-15 tags remain unchanged.
+zone keep their solution-scoped names. This naming rule is still **Proposed**; describe it as the
+current Wizard behavior, not a ratified enterprise standard. The proposed tagging rules remain
+unchanged.
 
-ADR-19, ADR-20, and ADR-21 are also **Proposed** in the verified Management App revision. The
+The archetype refusals, the Red egress costs and the Foundry gateway estimate are also
+**Proposed** in the verified Management App revision. The
 current Wizard enforces its archetype/connectivity/audience refusals, so never prepare a Wizard
 spec that the Wizard will reject. However, do not silently change a person's zone or archetype,
-and do not describe these proposed ADRs as approved policy. Surface a conflict as a blocking
+and do not describe these proposed rules as approved policy. Surface a conflict as a blocking
 human decision and keep the decision log explicit. In particular, no automatic "nearest allowed
 zone" decision belongs in the replatform agent.
 

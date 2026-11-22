@@ -48,8 +48,8 @@ When the platform closes one of these, change the rule in the same pull request.
 
 ## Rules for the files themselves
 
-- Each stays under 12,000 characters, so it fits one Antigravity rules file. `npm run check`
-  enforces this.
+- Each stays under 12,000 characters, so it fits one Antigravity rules file. Check the length
+  whenever you change one; nothing in this repository enforces it.
 - They are copied into customer repositories, so they have no relative links and name no
   customer, resource or secret.
 - They never choose a zone. "Build to Yellow" is a default for building, and itm8 confirms the

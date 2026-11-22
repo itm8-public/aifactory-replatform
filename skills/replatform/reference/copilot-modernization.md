@@ -48,10 +48,3 @@ instead of re-describing those upgrades in our own references. It decides nothin
 Phase 1, after the repository analysis: only when the analysis shows a .NET (`*.csproj`, `global.json`)
 or Java (`pom.xml`, `build.gradle`) application. Python and Node repositories use the playbook's own
 references. Run it once per application root.
-
-## Evaluation
-
-itm8's evaluation set has a scenario per language (`copilot-modernization-dotnet`,
-`copilot-modernization-java`) and one for the plugin being unavailable. Each checks the rules above:
-assessment only, recorded as tool-reported evidence, target still decided by the platform rules, and
-nothing committed under `.github/modernize/`.

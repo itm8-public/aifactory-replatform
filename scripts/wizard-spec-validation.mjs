@@ -66,7 +66,7 @@ export const validateWizardSpec = (spec, { orderDate } = {}) => {
   }
 
   const refusal = (field, reason) => blockers.push(
-    `${field}: the current Wizard refuses this combination under ADR-19 (still Proposed): ${reason} Do not change the zone or archetype automatically; ask the responsible reviewers.`,
+    `${field}: the current Wizard refuses this combination under its archetype rules (still Proposed): ${reason} Do not change the zone or archetype automatically; ask the responsible reviewers.`,
   );
   if (spec.archetype === 'corp' && spec.zone === 'green') {
     refusal('archetype/zone', 'Corp + Green.');
@@ -102,7 +102,7 @@ export const validateWizardSpec = (spec, { orderDate } = {}) => {
     warn('prod-only-approval-ignored', 'prodOnlyApproval only applies while production is the only environment; the Wizard ignores it beside a lower environment.');
   }
 
-  // TLS certificate source, DNS owner and mail (Management App #149).
+  // TLS certificate source, DNS owner and mail.
   for (const [index, app] of (spec.apps ?? []).entries()) {
     if (app.certificateSource && app.kind !== 'web') {
       errors.push(`apps[${index}].certificateSource: Only web apps have a TLS certificate.`);
@@ -115,7 +115,7 @@ export const validateWizardSpec = (spec, { orderDate } = {}) => {
     errors.push('services.mail.mode: Red sends no mail through Azure Communication Services Email.');
   }
 
-  // Sub-zones and egress per audience (Management App ADR-19 amendment, issue #171).
+  // Sub-zones and egress per audience (an amendment to the archetype rules).
   const subZoneZone = { 'yellow-public': 'yellow', 'yellow-internal': 'yellow', 'red-hub': 'red', 'red-isolated': 'red' };
   if (spec.subZone && subZoneZone[spec.subZone] !== spec.zone) {
     errors.push(`${spec.subZone} belongs to the ${subZoneZone[spec.subZone]} zone, not ${spec.zone}: Yellow-Public and Yellow-Internal need zone yellow, Red-Hub and Red-Isolated need zone red.`);
