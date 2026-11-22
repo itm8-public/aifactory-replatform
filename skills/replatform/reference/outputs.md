@@ -90,7 +90,7 @@ Before implementing, explicitly verify these constraints:
   `germanywestcentral`. Resolve a missing/denied region with the customer; do not guess.
 - Service level is capacity only and cannot weaken zone controls. Keep each dev/test/prod level as
   explicitly selected.
-- ADR-19 is still **Proposed**. The current Wizard refuses certain archetype/zone/connectivity/
+- The archetype rules are still **Proposed**. The current Wizard refuses certain archetype/zone/connectivity/
   audience combinations. Do not auto-change a person's choice: surface the exact Wizard refusal,
   stop for the responsible reviewers, and keep the policy marked proposed.
 - `readiness.accessGroups`, `eligibleAccounts`, and `accessAdmin` are Wizard/identity-team inputs.
@@ -104,8 +104,8 @@ Before implementing, explicitly verify these constraints:
   have run them.
 - Red must explicitly name its egress firewall. Start with the customer's firewall, then
   Operations-supported FortiGate; Azure Firewall is opt-in only with an Operations approval
-  reference. Never invent the next-hop IP or approval. ADR-20 costs remain provisional until
-  reviewers ratify them.
+  reference. Never invent the next-hop IP or approval. The Red egress cost figures remain
+  provisional until reviewers ratify them.
 - `evaluation` is isolated, Green, Basic in every environment, no prod, synthetic/non-sensitive
   data, expires in 1–90 days, and uses no shared gateway, registry, Foundry, or Fabric capacity.
   It never promotes in place; production is a separate reviewed order.

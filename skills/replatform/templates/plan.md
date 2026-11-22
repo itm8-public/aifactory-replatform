@@ -33,9 +33,9 @@ assumption that still needs owner confirmation.}
 ## Cost and pricing assumptions
 
 {State the service-level costs separately from the security zone. For Red, show the selected
-firewall path and only the provisional ADR-20 ranges: about €1,600–2,300/month after the full stage
-with an existing firewall/FortiGate, or €2,800–3,500 with Azure Firewall. Mark these as proposed
-estimates until ratified. Never default to Azure Firewall or invent a gateway/token quota price.}
+firewall path and only the provisional Red egress cost range itm8 supplies for that path. Mark it
+as a proposed estimate until ratified. Never default to Azure Firewall or invent an egress,
+gateway or token quota price.}
 
 ## Findings and decisions
 

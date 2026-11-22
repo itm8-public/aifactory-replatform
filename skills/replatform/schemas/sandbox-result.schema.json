@@ -35,7 +35,7 @@
     "questions": {
       "type": "array",
       "maxItems": 10,
-      "description": "The unanswered questions, in the plan's order, never more than ten (owner decision OD-6).",
+      "description": "The unanswered questions, in the plan's order, never more than ten.",
       "items": {
         "type": "object",
         "additionalProperties": false,

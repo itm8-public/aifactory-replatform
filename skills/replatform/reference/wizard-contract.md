@@ -6,7 +6,7 @@
 Legacy v1 specs may omit newer additive fields (including `allowedRegions`, `readiness`, `network`, `apps`, `foundry`, `egress`, `caf`, and `evaluation`) and remain parseable. Their absence is **unknown**, not a ready/default answer; a new governed handoff may still block until a human supplies the missing choice.
 
 This reference describes the Wizard's `ai-factory.json` **version 1** read/write contract used by
-`apps/web/src/wizard/generators/spec.ts`. The agent produces a draft only in the offline playbook
+the Management App Wizard's spec generator. The agent produces a draft only in the offline playbook
 path; when the Management App supplies Wizard answers (C1), those win and the agent
 must not reconstruct or overwrite them.
 
@@ -15,7 +15,7 @@ must not reconstruct or overwrite them.
 | Field | Contract | Agent behavior |
 |---|---|---|
 | `customer.code` | 2–4 lowercase letters/digits, starts with a letter; `itm8` is reserved. | Preserve an actual Management App value. Never fabricate a customer code. |
-| `archetype` | Optional/additive in v1: `corp`, `online`, `public`. | Use only an explicit Wizard/CAF answer. ADR-19 remains **Proposed**; see below. |
+| `archetype` | Optional/additive in v1: `corp`, `online`, `public`. | Use only an explicit Wizard/CAF answer. The archetype rules remain **Proposed**; see below. |
 | `connectivity` | Optional/additive: `internal`, `isolated`, or unanswered `""`. | Ask the owner. Do not infer network reachability from source code. |
 | `audience` | Optional/additive: `internal`, `external`, `public`, or unanswered `""`. | Ask the owner. An audience is not the same as internet exposure. |
 | `region`, `allowedRegions` | `region` has no default. `allowedRegions` is an optional/additive EU region-id array and is `[]` when unknown; legacy v1 specs may omit it. | Never default a region. If policy regions are unknown, say so. If provided, the selected region must be allowed. Red is `swedencentral`; Yellow currently supports `swedencentral`, `westeurope`, `northeurope`, `germanywestcentral`. |
@@ -29,12 +29,12 @@ must not reconstruct or overwrite them.
 | `apps[].certificateSource`, `services` | Optional. `certificateSource` (`customer-pfx`, `key-vault-secret`) only on web apps. `services.dnsOwnerRole` (`customer-dns-mail`, `customer-platform`) and `services.mail` (`mode` `none`, `acs-email` or `m365-connector`, plus `senderDomain`). Mail other than `none` needs a sender domain; Red never uses `acs-email`. | Read only. Never choose the certificate source, DNS owner or sender domain for the customer; each is an owner answer that creates a customer prerequisite package. |
 | `egress` | Optional block for Red, or Yellow with a `subZone`: `firewall` (`existing`, `fortigate`, `azure-firewall`, `nat-gateway`, `none`), `firewallNextHopIp`, `azureFirewallApproval`. Older Red v1 files without it remain parseable. | Read only. Never choose a firewall, next hop, or approval reference for the customer; a new Red handoff blocks until a firewall is explicitly chosen. |
 | `evaluation` | Optional `{data, expiresOn}`. Isolated Green/Basic, synthetic or non-sensitive data, no prod, 1–90 days, own resources only. The Wizard applies `purpose=evaluation` and `expiresOn` tags to each resource. | Never promote it in place or generate tags/IaC yourself. Personal/sensitive data, prod, shared resources, or internal connectivity blocks evaluation. Production is a separate reviewed order. |
-| `foundry` | `enabled`, `level` (`basic` or `premium`; absent in older v1 means Basic), models, and Premium quotas/contact. | Recommend Premium only when the customer requests an enforceable hard token cap or multiple apps share models; a budget is not a token cap. Agents that require `AZURE_AI_PROJECT_ENDPOINT` stay on Basic until the gateway supports that workflow. Premium requires a human-selected per-app `tokensPerMinute`, explicit `monthlyTokenQuota` (`0` means no cap), and gateway contact; never invent them. Premium apps use the API gateway and receive no Foundry account role or `AZURE_AI_PROJECT_ENDPOINT`. ADR-21's roughly €650/month gateway figure is a Proposed estimate, not an approved quote. |
+| `foundry` | `enabled`, `level` (`basic` or `premium`; absent in older v1 means Basic), models, and Premium quotas/contact. | Recommend Premium only when the customer requests an enforceable hard token cap or multiple apps share models; a budget is not a token cap. Agents that require `AZURE_AI_PROJECT_ENDPOINT` stay on Basic until the gateway supports that workflow. Premium requires a human-selected per-app `tokensPerMinute`, explicit `monthlyTokenQuota` (`0` means no cap), and gateway contact; never invent them. Premium apps use the API gateway and receive no Foundry account role or `AZURE_AI_PROJECT_ENDPOINT`. Any gateway cost figure is a provisional estimate from itm8, not a quote. |
 | `caf` | Optional confirmed profile facts: `defenderInherited`, `bastionPresent`. | Never invent this block. Discovery suggestions are not confirmed CAF facts. The Wizard fills it from the customer's CAF profile. |
 | `dataPlatform` | Optional; absent means no data platform was selected. | Omit Fabric unless an explicit Wizard/customer requirement selects it. A seed track or documentation mention is not an integration. |
 | `network` | Green/Yellow network selection; Red has its separate `egress` block. | Preserve only explicit Wizard answers. Never emit platform IaC or infer a shared resource exists. |
 
-## Naming contract (ADR-18)
+## Naming contract
 
 Use the term **workload landing zone**, not "AI landing zone".
 
@@ -42,30 +42,30 @@ The current Wizard generates landing-zone resources as
 `<customer>-lz-<region>-<type>[-<qualifier>]-<environment>`. Region abbreviations are `swce`,
 `swso`, `noeu`, `weeu`, `gece`, `frce`, `itno`, `poce`, `spce` for the corresponding Wizard region
 IDs. App resources retain solution-scoped names. Globally unique Azure names use a Bicep-generated
-suffix which the agent must not calculate or guess. ADR-18 is **Proposed**, so refer to this as
+suffix which the agent must not calculate or guess. This naming rule is **Proposed**, so refer to this as
 current Wizard output, not an approved enterprise naming standard.
 
-## Unratified archetype rules (ADR-19)
+## Unratified archetype rules
 
-ADR-19 is still **Proposed**; its named reviewers have not ratified it in the verified source. The
+These rules are still **Proposed**; their named reviewers have not ratified them in the verified
+source. The
 current Wizard/API code nevertheless refuses `corp + green`, `public + red`, `internal` connectivity
 outside Corp, `public` audience in Corp or Red, and treats external users in Corp/Red as warnings.
 
 If a draft contains a combination the current Wizard refuses:
 
 1. Do not silently change the archetype, audience, connectivity, or zone.
-2. Record the exact Wizard refusal and the ADR-19 **Proposed** status.
+2. Record the exact Wizard refusal and the rules' **Proposed** status.
 3. Stop for the responsible architect/reviewers to resolve the conflict; keep `confirmedZone` human-only.
 4. Do not describe the proposed refusal table as ratified policy.
 
-## Red egress and provisional cost (ADR-20)
+## Red egress and provisional cost
 
 Red requires an explicit firewall answer. Start from the customer's existing firewall, then supported
 FortiGate; Azure Firewall Premium is opt-in and requires an Operations confirmation reference. An
 `existing`/`fortigate` next hop is a private IPv4 outside Red's `10.20.0.0/16` and VPN
-`172.16.201.0/24` ranges. The agent never sets or edits these fields. ADR-20's cost figures are draft:
-about €1,600–2,300/month with an existing firewall/FortiGate after the full stage, and about
-€2,800–3,500/month with Azure Firewall. Label these estimates **provisional**, not approved prices.
+`172.16.201.0/24` ranges. The agent never sets or edits these fields. Any Red egress cost estimate
+is a draft that itm8 supplies: label it **provisional**, not an approved price, and never invent one.
 
 ## Sub-zones and egress per audience
 
@@ -73,8 +73,8 @@ Red-Hub uses the customer's existing hub and no itm8 VPN; Red-Isolated uses the 
 reaches users through the WAF, Entra sign-in and Conditional Access; Yellow-Internal through the
 customer hub or a private gateway. Egress `none` is refused when any web app serves users outside the
 customer's network (`external` or `public` audience); it fits internal APIs and workers. Red never
-uses an unfiltered NAT gateway. The Management App's Bicep and Doctor checks for sub-zones are still
-being built (Management App issue #171); the contract fields are pinned.
+uses an unfiltered NAT gateway. Treat sub-zone checks as unavailable unless a tool reports them; the
+contract fields are pinned.
 
 ## Access model
 

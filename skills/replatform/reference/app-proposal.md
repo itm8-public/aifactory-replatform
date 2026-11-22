@@ -45,8 +45,3 @@ for. A note is never a compliance claim and never a secret.
 - Two apps with the same name or the same root; a setting listed twice or written as `NAME=value`.
 - Anything that looks like a secret in a name, path or note.
 - `source: quick-scan` in a plan: the quick scan is the Management App's.
-
-## Examples
-
-itm8's example app proposals cover a Node (React and Express), a .NET (API and worker) and a Python
-(FastAPI with a model) application.

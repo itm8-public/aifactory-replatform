@@ -62,8 +62,8 @@ marker. If a script refuses, stop and say why; do not look for another way in.
 ## Needs input and resume
 
 The run ends `needs-input` after assess when C1 leaves a field open (not counting `source`) or when
-the plan is at `questions` with unanswered questions. It never asks more than **ten** questions
-(owner decision OD-6), and an open C1 with no question in the plan is an error, not a result.
+the plan is at `questions` with unanswered questions. It never asks more than **ten** questions,
+and an open C1 with no question in the plan is an error, not a result.
 
 When there are more than ten, keep these and leave the rest `unknown`, to be asked in the next run:
 
@@ -102,7 +102,7 @@ duplicate question ids, more than ten questions, or an open C1 and no question.
 `limits` (`maxTurns`, `stepTimeoutSeconds`, `runTimeoutSeconds`) are enforced by the runner from
 outside. You only read them: do not try to raise, extend or work around one.
 
-Customer source is refused (owner decision OD-3): `source.class` must be `synthetic` or `internal`,
+Customer source is refused: `source.class` must be `synthetic` or `internal`,
 and a missing or unknown class is refused too. Do not process customer code in sandbox mode, and do
 not change a run input to make it pass.
 

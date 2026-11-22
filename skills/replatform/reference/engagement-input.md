@@ -43,9 +43,3 @@ guess a value.
    authenticated tool result; the plan and comments refer to them by field name.
 6. **Re-read it when the owner says the Wizard changed.** C1 is read on demand; a new revision
    appears as a new `specification.revision`.
-
-## Evaluation
-
-itm8's evaluation set covers two scenarios: one where C1 leaves only `connectivity` open (the questions
-may name only that field), and one where nothing is saved (every question maps to a `missing`
-field).

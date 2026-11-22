@@ -200,8 +200,8 @@ When the owner answers:
    evaluation data/expiry, or Foundry token limits. Omit Fabric unless explicitly selected. Treat a
    missing `foundry.level` as Basic; recommend Premium only for an enforceable hard token cap or shared
    models, and keep agents that require `AZURE_AI_PROJECT_ENDPOINT` on Basic until the gateway supports
-   their workflow. ADR-19 is still Proposed: surface current Wizard refusals without changing a
-   human-selected zone/archetype.
+   their workflow. The Wizard's archetype rules are still Proposed: surface current Wizard refusals
+   without changing a human-selected zone/archetype.
 4. Map each need to an existing shared resource or explain why a new one is required.
 5. List application changes from [reference/app-changes.md](reference/app-changes.md) with a unique
    `APP-###` plan-item ID, exact path, evidence, and the matching `targetSpecField` from

@@ -1,8 +1,7 @@
 # Choosing the hosting target
 
 Container Apps is **not** the default. The target follows the solution's lifetime, criticality,
-operations needs, security and exit needs (an itm8 AI Factory architecture working session;
-follow-up for the architecture council: "when Container Apps and when App Service").
+operations needs, security and exit needs.
 
 Recommend a target with reasons. The architect who owns the customer dialogue decides.
 
@@ -42,7 +41,7 @@ The AI Factory wizard templates host apps on Container Apps only
 | App uses | Replatform to | Notes |
 |---|---|---|
 | SQLite or a local file DB | PostgreSQL flexible server (shared server, own database, for Small/Medium) | SQLite on a container's disk is lost on restart and cannot scale out. Plan a data migration and a schema migration step |
-| SQL Server | Azure SQL Database, Entra-only auth | Second engine on the platform (ADR-13 O5); needs architect sign-off |
+| SQL Server | Azure SQL Database, Entra-only auth | Second engine on the platform; needs architect sign-off |
 | PostgreSQL / MySQL | PostgreSQL flexible server | MySQL is a migration; flag it |
 | Local file uploads | Blob Storage through managed identity | Never Container Apps local storage for user data |
 | In-process cache or sessions | Stateless app, or Azure Cache for Redis | Required for more than one replica |
@@ -56,8 +55,8 @@ regions, access/PIM readiness and customer CAF facts are human/customer inputs; 
 levels never reduce zone controls. Do not propose a Fabric integration just because a competency
 track or README mentions Fabric/Power BI.
 
-ADR-19 is Proposed but the current Management App refuses the archetype/zone/connectivity/audience
-combinations it defines. If a requested target is currently refused, preserve the person's answer,
+The archetype rules are Proposed, but the current Management App refuses the archetype/zone/
+connectivity/audience combinations they define. If a requested target is currently refused, preserve the person's answer,
 record the Wizard refusal and Proposed status, and stop for the responsible reviewers; never
 silently change the archetype or zone. Evaluation orders are a separate isolated Green/Basic path,
 synthetic/non-sensitive only, without prod or shared platform resources, and cannot be promoted in
