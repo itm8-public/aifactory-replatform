@@ -145,6 +145,163 @@
     "soc": {
       "type": "boolean"
     },
+    "edge": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "none",
+            "app-gateway",
+            "front-door"
+          ]
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "new",
+            "existing"
+          ]
+        },
+        "existingId": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "allowedIps": {
+          "maxItems": 20,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 60
+          }
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "database": {
+      "type": "string",
+      "enum": [
+        "postgres",
+        "cosmos-nosql"
+      ]
+    },
+    "landingZone": {
+      "type": "object",
+      "properties": {
+        "addressSpace": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "registry": {
+          "type": "object",
+          "properties": {
+            "access": {
+              "type": "string",
+              "enum": [
+                "private",
+                "public"
+              ]
+            },
+            "existingId": {
+              "type": "string",
+              "maxLength": 400
+            }
+          },
+          "additionalProperties": false
+        },
+        "sharedResourceGroup": {
+          "type": "object",
+          "properties": {
+            "subscriptionId": {
+              "type": "string",
+              "maxLength": 60
+            },
+            "name": {
+              "type": "string",
+              "maxLength": 90
+            }
+          },
+          "required": [
+            "subscriptionId",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "postgresNetwork": {
+          "type": "string",
+          "enum": [
+            "vnet-integration",
+            "private-endpoint"
+          ]
+        },
+        "privateDns": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "central-policy",
+                "central-zones"
+              ]
+            },
+            "zoneIds": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "enum": [
+                  "keyVault",
+                  "containerApps",
+                  "registry",
+                  "postgres",
+                  "cosmos",
+                  "cognitiveServices",
+                  "openAi",
+                  "aiServices",
+                  "apim",
+                  "blob"
+                ]
+              },
+              "additionalProperties": {
+                "type": "string",
+                "maxLength": 400
+              }
+            },
+            "dnsServers": {
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 40
+              }
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "additionalProperties": false
+        },
+        "sreAgent": {
+          "type": "object",
+          "properties": {
+            "placement": {
+              "type": "string",
+              "enum": [
+                "shared",
+                "solution"
+              ]
+            }
+          },
+          "required": [
+            "placement"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "evaluation": {
       "type": "object",
       "properties": {
@@ -438,6 +595,38 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 9007199254740991
+        },
+        "gateway": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "new",
+                "existing"
+              ]
+            },
+            "existingId": {
+              "type": "string",
+              "maxLength": 400
+            },
+            "principalId": {
+              "type": "string",
+              "maxLength": 60
+            },
+            "tier": {
+              "type": "string",
+              "enum": [
+                "basic-v2",
+                "standard-v2",
+                "premium-v2"
+              ]
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -473,13 +662,31 @@
           "default": "",
           "type": "string",
           "maxLength": 400
+        },
+        "reporting": {
+          "type": "boolean"
         }
       },
       "required": [
         "channel"
       ]
     },
-    "dataPlatform": {}
+    "dataPlatform": {},
+    "platformKinds": {
+      "minItems": 1,
+      "maxItems": 3,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "azure-apps",
+          "fabric",
+          "power-platform"
+        ]
+      }
+    },
+    "fabric": {},
+    "powerPlatform": {}
   },
   "required": [
     "schemaVersion",

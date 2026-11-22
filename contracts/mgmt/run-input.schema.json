@@ -37,7 +37,8 @@
         "assess",
         "plan",
         "rebuild",
-        "security-only"
+        "security-only",
+        "security-audit"
       ]
     },
     "model": {
@@ -54,6 +55,10 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 80
+        },
+        "resource": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
         }
       },
       "required": [
@@ -297,6 +302,137 @@
             "additionalProperties": false
           }
         },
+        "edge": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "none",
+                "app-gateway",
+                "front-door"
+              ]
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "new",
+                "existing"
+              ]
+            },
+            "existingId": {
+              "type": "string",
+              "maxLength": 400
+            },
+            "allowedIps": {
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 60
+              }
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        "foundry": {
+          "type": "object",
+          "properties": {
+            "gateway": {
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "new",
+                    "existing"
+                  ]
+                },
+                "existingId": {
+                  "type": "string",
+                  "maxLength": 400
+                },
+                "principalId": {
+                  "type": "string",
+                  "maxLength": 60
+                },
+                "tier": {
+                  "type": "string",
+                  "enum": [
+                    "basic-v2",
+                    "standard-v2",
+                    "premium-v2"
+                  ]
+                }
+              },
+              "required": [
+                "mode"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "gateway"
+          ],
+          "additionalProperties": false
+        },
+        "database": {
+          "type": "string",
+          "enum": [
+            "postgres",
+            "cosmos-nosql"
+          ]
+        },
+        "platformKinds": {
+          "minItems": 1,
+          "maxItems": 3,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "azure-apps",
+              "fabric",
+              "power-platform"
+            ]
+          }
+        },
+        "addressSpace": {
+          "type": "string"
+        },
+        "registryAccess": {
+          "type": "string",
+          "enum": [
+            "private",
+            "public"
+          ]
+        },
+        "sharedResources": {
+          "type": "object",
+          "properties": {
+            "subscriptionId": {
+              "type": "string"
+            },
+            "resourceGroup": {
+              "type": "string"
+            },
+            "appGatewayId": {
+              "type": "string"
+            },
+            "frontDoorId": {
+              "type": "string"
+            },
+            "registryId": {
+              "type": "string"
+            },
+            "apiManagementId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
         "source": {
           "anyOf": [
             {
@@ -508,6 +644,20 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 9007199254740991
+        },
+        "maxTotalTokens": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "maxCostUsd": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "maxQuestions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
         }
       },
       "required": [
@@ -518,7 +668,7 @@
       "additionalProperties": false
     },
     "prerequisiteRoles": {
-      "maxItems": 6,
+      "maxItems": 18,
       "type": "array",
       "items": {
         "type": "object",
@@ -531,7 +681,19 @@
               "customer-soc",
               "customer-dns-mail",
               "customer-cicd",
-              "customer-escalation"
+              "customer-escalation",
+              "customer-data-protection",
+              "customer-billing",
+              "customer-exchange",
+              "customer-ai",
+              "customer-business",
+              "customer-data-owner",
+              "process_owner",
+              "champion",
+              "subject_matter_expert",
+              "data_owner",
+              "security_rep",
+              "product_owner"
             ]
           },
           "status": {
@@ -721,6 +883,124 @@
         "zoneAssumption",
         "apps",
         "date"
+      ],
+      "additionalProperties": false
+    },
+    "answers": {
+      "maxItems": 10,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "answer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "id",
+          "question",
+          "answer"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "priorAudit": {
+      "type": "object",
+      "properties": {
+        "sandboxRunId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "skillCommit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "runStatus": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "incomplete"
+          ]
+        },
+        "coverage": {
+          "type": "object",
+          "properties": {
+            "units": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "covered": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "units",
+            "covered"
+          ],
+          "additionalProperties": false
+        },
+        "findings": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fingerprint": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]*$"
+              },
+              "verdict": {
+                "type": "string",
+                "enum": [
+                  "confirmed",
+                  "needs_validation"
+                ]
+              },
+              "file": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "fingerprint",
+              "verdict",
+              "file",
+              "line"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "sandboxRunId",
+        "skillCommit",
+        "runStatus",
+        "coverage",
+        "findings"
       ],
       "additionalProperties": false
     }
