@@ -14,10 +14,20 @@ agent changes the app so those files can run it.
 | Secrets | Replace secret values in code or config with environment variables that the platform fills from Key Vault references. Add the secret **names** to the plan |
 | Identity | Use `DefaultAzureCredential` (or the language equivalent) for Azure SQL, PostgreSQL with Entra auth, Blob Storage and Key Vault instead of keys and passwords |
 | Data | Move from SQLite or local files to PostgreSQL or Blob Storage; add a migration tool if none exists (for example Prisma, EF Core migrations, Flyway, Alembic) and a data migration script for the existing data |
+| Data on Cosmos DB | Only when the order says `database: cosmos-nosql`. Rewrite data access for the Cosmos SDK with `DefaultAzureCredential`, reading `AZURE_COSMOS_ENDPOINT` and `AZURE_COSMOS_DATABASE`; no SQL schema, no `db-setup.sql`, no `PG*` settings. List each container with its partition key in the plan (the app template creates them). Say in the plan this is a code change, not a drop-in, and size it |
+| Sign-in | Where an environment has no gateway (edge `none`), the web app relies on Entra sign-in (Easy Auth) in front of it: `easyAuth: true`; read the signed-in user from the Easy Auth headers instead of a home-made login where the app has one |
+| AI calls | With Foundry Premium, call the models through the AI gateway URL with the app's managed identity (an Entra token from `DefaultAzureCredential`); remove API keys and `AZURE_AI_PROJECT_ENDPOINT` |
 | Statelessness | Move sessions and caches out of process when more than one replica will run |
 | Logging | Log to stdout in a structured format; no secrets or personal data in logs |
 | Build and test scripts | Make `build`, `test` and `lint` runnable non-interactively in CI |
 | Solution description | A draft `ai-factory.json` for the wizard, with `classification.confirmedZone: null` |
+
+## The change gate
+
+Every change runs the gate in the build kit's `GUARD.md` (in this repository: `build-kit/GUARD.md`)
+twice: when it is planned (the plan page's "Change gate" table) and before it is written. The build
+rules come first, controls at trust boundaries second, the smallest change last. A change that
+would only work by weakening a control is not made; it is a finding for a person.
 
 ## Never
 

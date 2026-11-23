@@ -41,11 +41,11 @@ Each control takes the **strictest** value of level, zone, environment and place
 |---|---|---|---|
 | Meaning | Internal, no personal data | External users or business data, **no personal data** | Personal or special-category data, sector rules, AI deciding about people |
 | Region | EU, default `swedencentral` | `swedencentral`, `westeurope`, `northeurope`, `germanywestcentral` | `swedencentral` only |
-| Entry | App Gateway WAF_v2 (new or shared), Prevention | WAF_v2, own policy per host, Prevention; prod adds a customer IP allow-list | Point-to-site VPN with Entra sign-in; full stage adds a private-only WAF_v2 |
-| Container Apps | VNet-injected, public access off, private endpoint | Same | Dedicated D4 profile, zone-redundant, firewall egress |
+| Entry | App Gateway WAF_v2 (new or shared), Prevention; with `edge`: none (see "Zone tiers") | WAF_v2, own policy per host, Prevention; prod adds a customer IP allow-list; with `edge`: Basic none, Standard and Premium the chosen WAF edge | Point-to-site VPN with Entra sign-in; full stage adds a private-only WAF_v2 |
+| Container Apps | VNet-injected, public access off, private endpoint; with `edge`: no network, public endpoint behind Entra sign-in | Same; with `edge`, Basic has public ingress behind Entra sign-in | Dedicated D4 profile, zone-redundant, firewall egress |
 | Key Vault | RBAC, purge protection, private endpoint | Same | Premium, 90-day soft delete, customer-managed keys |
 | PostgreSQL 18 | B1ms, Entra only; private endpoint in a customer landing zone, VNet-integrated only in itm8's own | B2ms or larger | D2ds_v5 or larger, customer-managed key |
-| Registry | Basic or shared | Premium, private endpoint | Premium, private endpoint, CMK |
+| Registry | Basic or shared (`existingRegistryId`) | Premium, private endpoint; or as `landingZone.registry` says (public, or a shared one) | Premium, private endpoint, CMK; never public or shared |
 | Logs | 30 days | 90 days | 365 days, Sentinel, immutable export |
 | Prod approval | Service delivery lead | Platform admin | Plus security, after a 5-day stage soak |
 
@@ -55,7 +55,8 @@ Red deploys in two stages: "grounds", then "full" behind a five-item `redGate`.
 
 One user-assigned managed identity per app, keyless everywhere; GitHub OIDC with an exact subject;
 PostgreSQL Entra-only; no anonymous endpoints; WAF v2 Prevention or internal-only, never public
-ingress protected only by EasyAuth; public access off on data services; Key Vault purge
+ingress protected only by EasyAuth except where the tiers say so (Green and Yellow Basic with
+`edge`, below); public access off on data services (Green with `edge` excepted); Key Vault purge
 protection; `swedencentral` and EU Data Zone models; security logs at least 90 days; actions
 pinned by SHA; images promoted by digest; plain Container Apps secrets refused outside dev.
 
@@ -71,15 +72,124 @@ pinned by SHA; images promoted by digest; plain Container Apps secrets refused o
 
 Refused: Red in A-shared or B-public; Premium in A-shared.
 
+## Zone tiers: edge and database (Management App, 2026-11-10)
+
+Two optional keys in C1 and `ai-factory.json`; `edgeFor` and `tierRefusals` in the Management
+App are the rule. Absent keys keep what was built before the tiers
+(an App Gateway everywhere, PostgreSQL). Copy them from C1 as given; never invent one.
+
+| Order | Edge per environment | What it means for the app |
+|---|---|---|
+| No `edge` | `app-gateway` | As before |
+| Green with `edge` | `none` | No network: public endpoints with Entra/RBAC, passwordless, no private endpoints |
+| Yellow, Basic environment | `none` | Private endpoints, no gateway; Container Apps public ingress with Entra sign-in (Easy Auth) required; optional `allowedIps` |
+| Yellow, Standard or Premium | the chosen `app-gateway` or `front-door` | WAF edge, new or `existing` (`existingId`) |
+| Red, Yellow-Internal | `app-gateway`, private only | Never a public path |
+
+Refused (`tierRefusals`): Green with anything but `none`; Yellow-Public with `none` while an
+environment is Standard or Premium; `front-door` in Red or Yellow-Internal; an existing Front Door
+without `existingId`; `database: cosmos-nosql` in Red. Where the edge is `none`, every web app has
+`easyAuth: true` and the plan says the app is reached without a WAF, behind Entra sign-in.
+
+`database: cosmos-nosql` is Azure Cosmos DB for NoSQL, serverless, Entra only, no key and no
+connection string. It is **not a drop-in** for PostgreSQL: the app code changes (documents and
+partition keys, the Cosmos SDK with `DefaultAzureCredential`). There is no `db-setup.sql` and no
+`PG*` setting; each database app reads `AZURE_COSMOS_ENDPOINT` and `AZURE_COSMOS_DATABASE`. The
+app template creates the containers (an app's data-plane role cannot), so the plan lists each
+container with its partition key; a partition key cannot change later. Serverless limits: one
+region, 20 GB per logical partition, no guaranteed throughput.
+
+## Foundry Premium AI gateway (Management App, 2026-11-10)
+
+Optional `foundry.gateway` (`mode` `new` or `existing`, `existingId`, `principalId`, `tier`
+`basic-v2`, `standard-v2`, `premium-v2`); `aiGatewayRefusals` and `aiGatewayTierFor` are the rule.
+Absent: the landing zone creates its own API Management, as before. A new gateway is Standard v2,
+or Basic v2 in Green without a network. `existing` needs the resource ID of a
+`Microsoft.ApiManagement/service`; `principalId` is a GUID; Basic v2 cannot reach a Foundry
+behind a private endpoint and is refused there. The package never writes to an existing instance;
+its owner adds the API. Apps call the models through the gateway (`AZURE_OPENAI_ENDPOINT`, the
+gateway URL with the `foundryGatewayPath`) with the Entra token of their own managed identity:
+never a key, never a subscription key, never `AZURE_AI_PROJECT_ENDPOINT`. Copy the gateway from
+C1's `foundry.gateway`, a Wizard spec or a person; never invent an instance or tier.
+
 ## Shared resources: reuse before create
 
 - **PostgreSQL**: a database on the shared server per environment for Small/Medium, Entra-only;
   never for Red. The migration job's identity owns the schema; apps get data access only.
 - **Ingress**: one shared Application Gateway WAF v2 per environment; onboarding adds a listener and
   pool. Never a gateway per app.
-- **Registry**: shared in Mode A; Green may reuse an existing registry (`existingRegistryId`).
+- **Registry**: shared in Mode A; Green and Yellow may reuse an existing registry
+  (`existingRegistryId`), see below.
 - **Key Vault**: one per resource set; apps read secrets as Key Vault references through their identity.
 - Say in the plan which existing resource each need maps to, or why a new one is required.
+
+## Shared registry, gateways and the shared resource group (Management App, 2026-11-11)
+
+Registries, App Gateways, Front Doors and API Management instances are often deployed once in a
+common (shared) resource group and referenced from each workload resource group. C1 lists every
+shared resource the order references in `sharedResources`; `ai-factory.json` keeps the IDs where
+they always were and adds a `landingZone` block.
+
+| C1 | `ai-factory.json` | Meaning |
+|---|---|---|
+| `sharedResources.registryId` | `network.existingRegistryId` (Green, Yellow); in Yellow also `landingZone.registry.existingId` | An existing, shared `Microsoft.ContainerRegistry/registries`. Absent: the landing zone has its own. |
+| `registryAccess` | `landingZone.registry.access` (Yellow only) | `private` (what a spec without the key means): Premium, private endpoint (the `azurecr` zone in central DNS; images arrive by import, see "A pipeline without a private runner" below). `public`: Basic, Entra ID and RBAC only, admin user and anonymous pull off. Red is always private; Green and Red choose no registry here. |
+| `sharedResources.appGatewayId`, `frontDoorId` | `edge.existingId` with `edge.mode: existing`, or `network.existingGatewayId` with `gatewayMode: existing` | A shared App Gateway or Front Door profile. |
+| `sharedResources.apiManagementId` | `foundry.gateway.existingId` with `mode: existing` | A shared API Management instance ("Foundry Premium AI gateway"). |
+| `sharedResources.subscriptionId`, `resourceGroup` | `landingZone.sharedResourceGroup` (`subscriptionId`, `name`) | **Information only**: where the shared resources live. |
+| `addressSpace` | `landingZone.addressSpace` | The VNet range (a private /16 to /22; absent: the template default per zone). Copy it; never ask again. |
+
+What the plan and the app change do with a shared resource:
+
+- **Never infer that one exists.** Copy an `existingId`/`existingRegistryId` only from the Wizard or a
+  person (C1's `sharedResources` is the Wizard). A resource group name, a naming pattern, a
+  discovery inventory or the shared resource group is not evidence that a registry, gateway or instance exists or may be used: ask (within the
+  limit) or record a gap.
+- **Never create, change or delete it**, and never write IaC for it, also not "just a listener" or
+  "just an API". Refer to it by its resource ID; the plan's `sharedResources` row names it.
+- **Registry**: the app's managed identity pulls the image; the landing zone template grants AcrPull
+  on the shared registry, never app code. No admin user, password or token. A `private` registry in
+  a customer landing zone needs its private endpoint registered in central DNS (below); images
+  reach it by import, not by a runner inside the network ("A pipeline without a private runner"
+  below). A `public` one in Yellow is the customer's choice, never the agent's.
+- **App Gateway or Front Door**: the app is onboarded only through the owner's documented
+  onboarding script or Bicep, which the resource owner runs (a listener and pool, or a route and
+  origin). The plan lists it as an owner action; the app only serves its host name and `/healthz`.
+- **API Management**: the app calls the models through its URL with its managed identity, never a
+  key or subscription key; the owner adds the API.
+- **The shared resource group** is never a place the package or the agent writes to, and never a reason
+  to plan a new resource there. Mention it in the plan only as where the named shared resources live.
+
+## Platform kinds: solutions without an app (Management App, 2026-11-11)
+
+A solution has one or more platform kinds: `azure-apps` (Container Apps, everything above),
+`fabric` (Microsoft Fabric) and `power-platform` (Power Apps, Power Automate, Copilot Studio). C1 and
+`ai-factory.json` carry them as `platformKinds`; absent means `azure-apps` only. `ai-factory.json`
+adds a `fabric` or `powerPlatform` block for the governed platform, written by the Wizard; copy it,
+never invent it. A solution may have **no app**.
+
+- **No `azure-apps`** (Fabric only, Power Platform only, or both): there is nothing to rebuild.
+  Write a **platform plan**, not a rebuild: what exists (workspaces, semantic models, pipelines,
+  notebooks, data agents; apps, flows, agents, connectors, environments), where each goes on the
+  governed platform, the data, identity and connector questions, prerequisites and role-holders.
+  `hosting.recommended` is `fabric-app` or `copilot-app` (Power Platform) with `platformGap: true`
+  until the Management App ships that package; `appChanges` and `apps` stay empty; no container,
+  Dockerfile, migration, app scaffold or code change. The pull request carries the plan only.
+- **`azure-apps` with `fabric` or `power-platform`**: replatform the apps as before and add the
+  platform plan for the rest. `dataPlatform` still comes only from the Wizard.
+- **Fabric content modules** (Management App, 2026-11-17): a stage of the `fabric` block may list
+  `content`: `lakehouse`, `medallion`, `semantic-model`, `data-agent`. The customer's own
+  role-holders create them with the package's scripts, each only after the data owner approved it
+  (prerequisite package kind `fabric-content-approval`; the business role-holder approves, the
+  platform role-holder while there is none). In the platform plan, map what exists to the selected
+  modules and name the open approval as a customer action for that role. A semantic model needs the
+  medallion layers and cannot be in a workspace with private access; a data agent needs a
+  lakehouse, the medallion layers or a semantic model, and is refused in Red. Never add, drop or
+  reorder a module, never run a content script, and never write its decisions file.
+- **Power Platform up to Yellow only** (a Management App working assumption): Red with
+  `power-platform` is a blocker for a person, never a reason to change the zone.
+- Never pick the platform kind from code or a README; a mention of Fabric or Power BI is not a
+  selection.
 
 ## Private DNS in a customer landing zone
 
@@ -151,7 +261,7 @@ the CAF profile (`replatform_get_customer_caf_profile`), and an unknown one is a
    `packages.aks.azure.com`, `acs-mirror.azureedge.net`, `*.identity.azure.net`,
    `login.microsoftonline.com`, `*.login.microsoftonline.com`, `*.login.microsoft.com`, the
    container registry and `*.blob.core.windows.net`, the certificate issuer of the custom domain
-   (a certificate is always needed), and GitHub for the runner
+   (a certificate is always needed), and GitHub only where the fallback runner of point 6 runs in the spoke
    ([Container Apps with Azure Firewall](https://learn.microsoft.com/azure/container-apps/use-azure-firewall)).
    Estate fact "Firewall egress".
 4. **One public IP for the App Gateway frontend.** Internet users reach a Yellow app through the
@@ -161,14 +271,32 @@ the CAF profile (`replatform_get_customer_caf_profile`), and an unknown one is a
 5. **Resource providers**, registered by the subscription owner: `Microsoft.App`,
    `Microsoft.DBforPostgreSQL`, `Microsoft.KeyVault`, `Microsoft.ContainerRegistry`,
    `Microsoft.Network`, `Microsoft.OperationalInsights`, `Microsoft.ManagedIdentity`,
-   `Microsoft.Insights`, `Microsoft.CognitiveServices`, and `GitHub.Network` for a GitHub-hosted
-   runner on private networking. Estate fact "Resource providers".
-6. **A runner that reaches the private endpoints.** A runner on the public internet cannot read
-   Key Vault, run Postgres migrations or push to a private registry. Default: a GitHub-hosted larger
-   runner (2-core) on Azure private networking in a subnet of the spoke, its own runner group per
-   customer; the firewall lets it reach the GitHub enterprise host. Fallback: an ephemeral
-   self-hosted runner in the spoke (no image builds inside Container Apps jobs). Estate fact
-   "Runner network".
+   `Microsoft.Insights`, `Microsoft.CognitiveServices`, and `GitHub.Network` only for the fallback
+   runner of point 6. Estate fact "Resource providers".
+6. **A pipeline without a private runner.** The default needs none (the
+   registry is public unless the customer keeps it private; Green always, Yellow by choice). A
+   standard GitHub-hosted runner builds and pushes with Entra ID, the deployment is Bicep through
+   Azure Resource Manager, and database migrations run as a Container Apps job inside the
+   environment. No pipeline step reads Key Vault or opens a database connection from the runner.
+   **Where a private registry is kept** (Yellow by choice, Red always), the first option is: build
+   on a standard hosted runner, push to a build registry the customer names, copy the image into
+   the private registry with `az acr import`, deploy with Bicep, and run migrations as the job. The
+   import is a control-plane call, so the runner needs no network path to the registry. It relies
+   on the registry's "allow trusted services" setting, which is on by default; with it off the
+   import fails. The deploy identity needs `Container Registry Data Importer and Data Reader` on
+   both registries, in one tenant
+   ([import images](https://learn.microsoft.com/azure/container-registry/container-registry-import-images),
+   [trusted services](https://learn.microsoft.com/azure/container-registry/allow-access-trusted-services)).
+   The Wizard package builds inside the registry instead (`az acr build`, on an agent pool in the
+   network for a private registry); where the package is used, it wins.
+   **Fallback**, named as a fallback in the plan and only when a pipeline step must reach a private
+   endpoint: a GitHub-hosted larger runner on Azure private networking in a subnet of the spoke,
+   its own runner group per customer, with GitHub allowed through the firewall; or an ephemeral
+   self-hosted runner as a Container Apps job (consumption plan, started on demand, in a
+   VNet-integrated environment in the spoke; never an always-on VM; no image builds inside it).
+   Either way the deploy identity needs deploy rights in the customer subscription; Lighthouse
+   Reader is not enough. Estate fact
+   "Runner network", needed only for the fallback.
 7. **Logs:** the workspace the workload sends to (the customer's central one or its own) and
    whether a policy writes the diagnostic settings. Estate fact "Log Analytics".
 

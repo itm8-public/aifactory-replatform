@@ -35,7 +35,7 @@
     "questions": {
       "type": "array",
       "maxItems": 10,
-      "description": "The unanswered questions, in the plan's order, never more than ten.",
+      "description": "The unanswered questions, in the plan's order, never more than the run input's limits.maxQuestions and never more than ten. Questions the run input answered are not here.",
       "items": {
         "type": "object",
         "additionalProperties": false,

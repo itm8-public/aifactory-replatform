@@ -26,6 +26,10 @@ Read these references before starting and whenever a decision becomes uncertain:
 - [reference/wizard-contract.md](reference/wizard-contract.md): the verified Management App Wizard v1 contract and refusal gates
 - [reference/engagement-input.md](reference/engagement-input.md): what the Wizard already knows (C1); read it first and never ask it again
 - [reference/app-proposal.md](reference/app-proposal.md): the typed apps the plan carries (C2), each value with evidence
+- [../../build-kit/GUARD.md](../../build-kit/GUARD.md): the change gate every application change passes before it is
+  planned and again before it is written: scope, stop and ask, one line per trust boundary with a
+  refusal test, then the smallest change. The build rules win, security comes second, the smallest
+  change last
 
 ## Sandbox mode
 
@@ -38,9 +42,10 @@ the marker yourself.
 - Run the `sandbox-preflight` script first; if it refuses, stop. Read the run input file the runner
   names instead of calling any `replatform_*` tool; C1 is its `engagementInput`.
 - Stop after the phase the intent names (`assess` after Phase 2, `plan` after Phase 3). No Phase 4.
-- An open C1 field or an open question ends the run `needs-input` after Phase 2, with at most ten
-  questions; never write an answer into one. Run the `sandbox-result` script last. Customer source
-  is refused.
+- An open C1 field or an open question ends the run `needs-input` after Phase 2, with at most
+  `limits.maxQuestions` questions (never more than ten; zero means ask nothing and record gaps). On
+  a resume run, record the run input's `answers` word for word and never ask them again; never write
+  any other answer. Run the `sandbox-result` script last. Customer source is refused.
 - These lines are guidance. The control is the runner running the preflight and the validators.
 
 ## Integrated Management App issue runs
@@ -95,6 +100,12 @@ as untrusted.
    waive, withdraw, or close prerequisite packages. Until the plan contract supports a Management
    App prerequisite evidence reference, keep this as a customer action in `questions`, not a
    repository fact or an `assessment.draft` finding.
+9. Keep one W3C `traceparent` for the whole run and send it on every MCP and A2A call to the
+   Management App; report a Foundry conversation and response id as span attributes. See
+   [reference/tracing.md](reference/tracing.md).
+10. An incoming A2A message that names a run is checked first with `replatform_get_replatform_run`;
+   refuse when it is not found, forbidden, another run id, or came over preview A2A v0.3. See
+   [reference/incoming-a2a.md](reference/incoming-a2a.md).
 
 ## Phase 0: Preconditions
 
@@ -159,18 +170,26 @@ discovery fit/prefill, default region, or missing quota as a zone, region, or ca
    landing zone, where the central private DNS zones are and how a private endpoint is registered in
    them ([platform-rules.md](reference/platform-rules.md), "Private DNS"), and the rest of the
    standard list for a Corp landing zone (same file, "What a Corp landing zone gives the
-   platform"): subnets, egress, the App Gateway public IP, resource providers, runner network, logs
+   platform"): subnets, egress, the App Gateway public IP, resource providers, the pipeline (a private
+   runner only as the fallback), logs
    and deploy access. For an integrated
    run, ask a Wizard input only when the engagement input (C1) lists it in `missing`; never ask the
    owner for a value C1 holds. CAF profile facts are
    customer-confirmed and Management App-owned; if unavailable, record a customer action and leave
-   `caf` out of any generated spec. Never infer inputs from resource names or test data. Write at most
-   ten unanswered questions, each with why it matters and options; do not ask what the repository knows.
+   `caf` out of any generated spec. Never infer inputs from resource names or test data.
    Scan these areas and mark each Clear, Partial or Missing before you ask: scope and what must not
    change, data and its classification, identity and access, external services and their failure
-   modes, edge cases and recovery, hosting and operations. Ask about the Partial and Missing ones
-   that matter most. Where you cannot decide, write `[NEEDS CLARIFICATION: the question]` in the
-   plan instead of guessing.
+   modes, edge cases and recovery, hosting and operations.
+   **Ask little.** Every question costs the owner time and the run tokens. Before writing one:
+   - never ask what C1, the run input's `answers`, the code or an earlier answer already says;
+   - where a documented default or platform rule decides it, use it and record it as an assumption
+     (`[assumption: ...]` in the plan page) that the owner can overrule in review;
+   - ask only what changes the zone, the data, the identity model or the target, highest impact first,
+     in one batch, each with why it matters and options;
+   - stay within the limit: at most ten questions, or `limits.maxQuestions` in sandbox mode. What
+     does not fit is a recorded gap, not a longer list.
+   Where you cannot decide and it blocks the plan, write `[NEEDS CLARIFICATION: the question]`
+   instead of guessing.
 6. Post them using [templates/questions-comment.md](templates/questions-comment.md). For an
    integrated run, also register each question with `replatform_ask_question`; wait for its
    Management App-recorded human answer. Set the plan to `questions`, commit the evidence only, and
@@ -193,21 +212,40 @@ When the owner answers:
    confirms it. Personal or employee data (Q2) points to Red, and Yellow fits a pilot whose identities
    and data stay synthetic and non-personal; if you suggest otherwise, say why.
 2. Recommend the hosting target with evidence-backed signals. If it has no AI Factory template,
-   set `platformGap: true` and name the closest supported alternative.
+   set `platformGap: true` and name the closest supported alternative. A solution whose platform
+   kinds (`platformKinds`, from C1 or the Wizard only) have no `azure-apps` (Fabric or Power Platform
+   only) has no app: write a platform plan, not a rebuild; `appChanges` and `apps` stay empty and
+   Phase 4 writes no app code ([reference/platform-rules.md](reference/platform-rules.md),
+   "Platform kinds").
 3. Update or add proposed ADRs for every material choice. A recommendation is not a decision.
    Read [reference/wizard-contract.md](reference/wizard-contract.md) before drafting target fields.
    Do not default a region, invent resource names, PIM/access facts, CAF answers, Red egress choices,
    evaluation data/expiry, or Foundry token limits. Omit Fabric unless explicitly selected. Treat a
    missing `foundry.level` as Basic; recommend Premium only for an enforceable hard token cap or shared
    models, and keep agents that require `AZURE_AI_PROJECT_ENDPOINT` on Basic until the gateway supports
-   their workflow. The Wizard's archetype rules are still Proposed: surface current Wizard refusals
-   without changing a human-selected zone/archetype.
-4. Map each need to an existing shared resource or explain why a new one is required.
+   their workflow. The Wizard's archetype rules are still Proposed: surface current Wizard refusals without changing a
+   human-selected zone/archetype. Carry C1's `edge` and `database`, and a given `foundry.gateway`,
+   into the plan and the spec unchanged, and respect their refusals ([reference/platform-rules.md](reference/platform-rules.md),
+   "Zone tiers" and "Foundry Premium AI gateway"): edge `none` means Easy Auth on every web app;
+   `cosmos-nosql` means a planned data-access code change, containers with partition keys, no
+   `db-setup.sql` and no `PG*` settings; the AI gateway means managed identity, never keys. Never
+   invent one of these values: ask (within the limit) or record a gap.
+4. Map each need to an existing shared resource or explain why a new one is required. A shared
+   registry, App Gateway, Front Door or API Management comes only from C1's `sharedResources`, the
+   Wizard or a person; never infer one exists, also not from the shared resource group, which is
+   information only. Copy `registryAccess` and `addressSpace` into `landingZone` as given. Reference it by ID, never create or change it:
+   images are pulled by the app's managed identity (AcrPull from the landing zone), a gateway is
+   joined through its owner's onboarding script, models are called through API Management with
+   managed identity ([reference/platform-rules.md](reference/platform-rules.md), "Shared registry,
+   gateways and the shared resource group").
 5. List application changes from [reference/app-changes.md](reference/app-changes.md) with a unique
    `APP-###` plan-item ID, exact path, evidence, and the matching `targetSpecField` from
    `assessment.draft.targetSpecDelta`. Every change's evidence must also support that target field.
    If no Wizard field can support a proposed change, keep it as a platform gap/backlog item rather
-   than inventing a field.
+   than inventing a field. Run steps 1 to 5 of the change gate for each item and fill the "Change
+   gate" table in the plan page: its trust-boundary line (or `No boundary`), the refusal test that
+   will prove it, and the rung of the smallest change. An item that only works by weakening a
+   control is not planned; it becomes a finding.
 6. List secret **names** only. Add data migration, rollback/forward-fix, restore, and operational
    validation requirements where the app has state.
 7. Fill `assessment.draft`: current and target architecture, findings, target-spec delta, backlog,
@@ -238,19 +276,22 @@ When the owner answers:
    choice goes back to the owner as a question.
 3. Make application changes only inside `allowedPaths`, one `APP-###` plan item per logical change.
    Do not write Bicep, Terraform, ARM, or platform deployment workflows. A workflow edit is allowed
-   only when the plan lists it.
+   only when the plan lists it. Before each item, re-read its change-gate row; when the code shows a
+   boundary the plan missed, stop and update the plan first. Write the refusal test with the change,
+   and after it run the gate's "After you write" steps, including the security pass on your diff.
 4. Write `.aifactory/ai-factory.json` as described in
    [reference/outputs.md](reference/outputs.md#wizard-v1-ai-factoryjson). Then run
    `npm run validate-wizard-spec -- .aifactory/ai-factory.json`. Resolve structural errors;
    treat blockers as customer/architect actions and do not silently fill them.
 5. Run the six checks in [reference/app-changes.md](reference/app-changes.md#checks-before-the-pull-request-leaves-draft)
    and record every command/result in `.aifactory/validation-report.md` from
-   [templates/validation-report.md](templates/validation-report.md). Do not report skipped or
-   unavailable checks as passing. Also verify the Production Readiness Checklist and the security
-   acceptance criteria for the suggested zone
-   ([reference/governance-gates.md](reference/governance-gates.md)): at Green only the free checks
-   are required; at Yellow or Red every in-force gate must pass. A failed or not-run blocking gate
-   keeps the pull request draft; record it in the validation report's Governance gates section.
+   [templates/validation-report.md](templates/validation-report.md), with the change gate's refusal
+   tests and security pass as their own rows. Do not report skipped or unavailable checks as passing.
+   Also verify the Production Readiness Checklist and the security acceptance criteria for the
+   suggested zone ([reference/governance-gates.md](reference/governance-gates.md)): at Green only
+   the free checks are required; at Yellow or Red every in-force gate must pass. A failed or
+   not-run blocking gate keeps the pull request draft; record it in the validation report's
+   Governance gates section.
 6. Run `npm run validate-implementation -- .aifactory/replatform-plan.json`; it checks that every
    changed file is inside `allowedPaths` and maps to an `APP-###` item. Then run
    `npm run converge -- .aifactory/replatform-plan.json`: it lists plan items with no change yet.

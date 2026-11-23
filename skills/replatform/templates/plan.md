@@ -22,8 +22,9 @@
 | Suggested zone | {green / yellow / red} (a person confirms) | {risk answers} |
 | Placement | {A-shared / A-dedicated / B-caf / B-public} | {why} |
 | Service level | dev {basic}, test {basic}, prod {standard} | {why} |
-| Data | {PostgreSQL database on the shared server / ...} | {ids} |
-| Ingress | {shared App Gateway listener / internal-only} | {ids} |
+| Data | {PostgreSQL database on the shared server / Cosmos DB for NoSQL: code change, containers and partition keys / ...} | {ids} |
+| Ingress | {edge per environment: none behind Entra sign-in / App Gateway / Front Door / internal-only} | {C1 edge or ids} |
+| AI gateway | {Foundry Premium: new / existing API Management, apps call it with managed identity / not used} | {spec or answer} |
 
 ### Why this target
 
@@ -48,6 +49,10 @@ gateway or token quota price.}
 
 ## Shared resources
 
+Shared registry, App Gateway, Front Door and API Management only as the Wizard or a person named
+them, by resource ID: never created or changed, joined only through the owner's onboarding script.
+The shared resource group is information only.
+
 | Need | Reuse | Existing resource or reason for a new one |
 |---|---|---|
 
@@ -63,6 +68,8 @@ gateway or token quota price.}
 | Access/PIM readiness | {group status, evidence-reference present/missing, actions; no names/emails} |
 | CAF profile | {confirmed Defender/Bastion facts only; otherwise unknown} |
 | Foundry / evaluation / Fabric | {explicit choices only; no invented quotas, contacts, expiry, or Fabric use} |
+| Platform kinds | {`platformKinds` from C1/Wizard; absent = `azure-apps`. No `azure-apps`: a platform plan, no app changes} |
+| Registry | {`network.existingRegistryId` and, in Yellow, `landingZone.registry` as given; absent = the zone default} |
 
 Open Wizard readiness items are customer actions. Never copy `accessAdmin` contact details or the
 `eligibleAccounts` list into this plan, PR, lessons, or telemetry. A Basic service level does not
@@ -79,6 +86,14 @@ status without changing the owner's inputs.
 |---|---|---|---|---|---|
 
 Allowed paths for implementation: {list}
+
+### Change gate
+
+Each change above passed the gate in `build-kit/GUARD.md` before it was planned.
+
+| Plan item | Trust boundary: who sends what where, which control decides, what must never happen | Refusal test | Smallest-change rung |
+|---|---|---|---|
+| `APP-001` | {one line, or `No boundary`} | {test name and path, or `None needed`} | {1 to 5, and what was skipped} |
 
 ## Secrets the app needs (names only)
 

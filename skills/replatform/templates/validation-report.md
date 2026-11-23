@@ -15,6 +15,8 @@
 | Build | | | | {PASS / FAIL / WARN / SKIPPED / NOT RUN} | |
 | Tests | | | | | |
 | Implementation scope | | | | | |
+| Change gate: refusal tests | One test per boundary line in the plan's change-gate table | | Each one is refused as the line says | | |
+| Change gate: security pass | Each boundary line read against the diff, sad paths included | | No line broken | | |
 | SAST | | | | | |
 | IaC scan | | | | | |
 | Secret scan | | | | | |

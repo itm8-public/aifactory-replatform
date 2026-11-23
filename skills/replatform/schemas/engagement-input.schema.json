@@ -66,6 +66,69 @@
         }
       }
     },
+    "edge": {
+      "description": "The edge in front of the web apps and with it the tiers (2026-11-10). Absent when the answers predate the tiers: every environment then has an App Gateway. With it, a Basic environment has no gateway and Standard and Premium have this WAF edge (edgeFor). Copy it to ai-factory.json as given; never invent it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["none", "app-gateway", "front-door"] },
+        "mode": { "enum": ["new", "existing"] },
+        "existingId": { "type": "string", "maxLength": 400, "description": "The resource ID of the shared App Gateway or Front Door profile an existing edge names. Copy it as given; never guess one." },
+        "allowedIps": { "type": "array", "maxItems": 20, "items": { "type": "string", "maxLength": 60 }, "description": "The addresses the environments without a gateway are narrowed to." }
+      }
+    },
+    "foundry": {
+      "description": "Foundry Premium's AI gateway (2026-11-10) as the specification holds it: new, or an existing API Management instance (existingId, the principalId of its managed identity, its tier). Absent when no gateway was chosen. Copy it to ai-factory.json as foundry.gateway.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gateway"],
+      "properties": {
+        "gateway": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode"],
+          "properties": {
+            "mode": { "enum": ["new", "existing"] },
+            "existingId": { "type": "string", "maxLength": 400 },
+            "principalId": { "type": "string", "maxLength": 60 },
+            "tier": { "enum": ["basic-v2", "standard-v2", "premium-v2"] }
+          }
+        }
+      }
+    },
+    "database": {
+      "description": "The database engine (2026-11-10). Absent means PostgreSQL. cosmos-nosql is Cosmos DB for NoSQL, serverless, Entra only: not a drop-in, the app code changes.",
+      "enum": ["postgres", "cosmos-nosql"]
+    },
+    "platformKinds": {
+      "description": "What the solution is (2026-11-11): azure-apps, fabric, power-platform, or a mix. Absent means azure-apps only. Without azure-apps the solution may have no app: the agent writes a platform plan, not a rebuild.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": { "enum": ["azure-apps", "fabric", "power-platform"] }
+    },
+    "addressSpace": {
+      "description": "The VNet address space the order sets (2026-11-11). Absent: the template default for the zone. Copy it to ai-factory.json as landingZone.addressSpace; never ask for it again.",
+      "type": "string"
+    },
+    "registryAccess": {
+      "description": "Yellow's registry access (2026-11-11): private (Premium, private endpoint) or public (Basic, Entra ID and RBAC only). Absent: private, or not the order's own registry. Copy it as landingZone.registry.access; never choose it.",
+      "enum": ["private", "public"]
+    },
+    "sharedResources": {
+      "description": "Every shared platform resource the order references instead of creating (2026-11-11), as resource IDs, and the shared resource group named for them (information only). Never created or written to; the app references them. Absent when nothing is shared. Never infer one that is not here.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subscriptionId": { "type": "string" },
+        "resourceGroup": { "type": "string" },
+        "appGatewayId": { "type": "string" },
+        "frontDoorId": { "type": "string" },
+        "registryId": { "type": "string" },
+        "apiManagementId": { "type": "string" }
+      }
+    },
     "source": {
       "description": "The newest upload of the solution: what it is and its hash, never its content.",
       "oneOf": [

@@ -18,6 +18,18 @@ because `AGENTS.md` is close to the 12,000-character limit. It follows the same 
 no state in memory, nothing longer than 30 seconds, and Redis, a `worker`, scheduled work, email and
 a CDN are "ask itm8" because the Wizard templates do not offer them for every app yet.
 
+[GUARD.md](GUARD.md) is the gate every change passes before code is written, for people and for
+AI tools: the agreed scope, the "stop and ask" list, a one-line note per trust boundary with a
+refusal test, then the smallest change that fully works. It puts the build rules first, security
+second and the smallest change last, so a tool that is told to write less never drops a control.
+The [replatform agent](../skills/replatform/SKILL.md) runs the same gate on every `APP-###` change,
+and the `aifactory-code` plugin pins it, adds it to the feature plan as gate G7 and blocks known
+unsafe code at write time. The ladder is adapted from Ponytail (MIT) and the boundary method from
+Cloudflare's security-audit skill (MIT); the wording here is itm8's. Since version 0.2 it also
+holds the actions that need a person first (force pushes, deletes, production), the current
+versions rule and the web Baseline target. They are in the gate because `AGENTS.md` has no room
+left under the 12,000-character limit.
+
 [hosted-builders.md](hosted-builders.md) is the short version for builders that run their own
 backend. There the app cannot meet every rule, so the goal is a mechanical move: sign-in, data
 access, AI calls and settings each in one module, and server functions that only wrap plain code.
@@ -26,10 +38,10 @@ access, AI calls and settings each in one module, and server functions that only
 
 | Tool | Use | Put it here |
 |---|---|---|
-| GitHub Copilot, Cursor, Codex, Antigravity | AGENTS.md, PERFORMANCE.md | Both in the repository root (Antigravity: one rules file each) |
-| Claude Code | AGENTS.md, PERFORMANCE.md | Both in the root, plus a `CLAUDE.md` that contains `@AGENTS.md` and `@PERFORMANCE.md` |
-| Lovable | hosted-builders.md | Workspace knowledge (every project) or project knowledge |
-| Base44, Emergent and other hosted builders | hosted-builders.md | The custom instructions, or the first prompt |
+| GitHub Copilot, Cursor, Codex, Antigravity | AGENTS.md, PERFORMANCE.md, GUARD.md | All in the repository root (Antigravity: one rules file each) |
+| Claude Code | AGENTS.md, PERFORMANCE.md, GUARD.md | All in the root, plus a `CLAUDE.md` that contains `@AGENTS.md`, `@PERFORMANCE.md` and `@GUARD.md` |
+| Lovable, Base44, Bolt.new, Replit | hosted-builders.md | The project repository, under the rules file name the builder reads (listed in the file) |
+| Emergent, v0 and other hosted builders | hosted-builders.md | The custom instructions, or the first prompt (the fallback) |
 
 In a hosted builder the text is guidance, not enforcement. The builder may still choose its own
 backend, and a person must check that before itm8 takes the app over.

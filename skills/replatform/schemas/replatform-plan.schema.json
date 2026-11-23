@@ -166,9 +166,9 @@
         "additionalProperties": false,
         "required": ["need", "reuse", "reason"],
         "properties": {
-          "need": { "enum": ["postgresql", "app-gateway", "registry", "key-vault", "container-apps-environment", "log-analytics", "foundry", "storage", "other"] },
+          "need": { "enum": ["postgresql", "app-gateway", "front-door", "api-management", "registry", "key-vault", "container-apps-environment", "log-analytics", "foundry", "storage", "other"] },
           "reuse": { "type": "boolean" },
-          "existing": { "type": "string", "maxLength": 300, "description": "Name or resource id of the shared resource reused." },
+          "existing": { "type": "string", "maxLength": 300, "description": "Name or resource id of the shared resource reused, only as the Wizard or a person gave it; never inferred, also not from the shared resource group." },
           "reason": { "type": "string", "maxLength": 500 }
         }
       }

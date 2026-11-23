@@ -139,6 +139,22 @@
     "soc": {
       "type": "boolean"
     },
+    "edge": {
+      "type": "object",
+      "description": "The edge in front of the web apps (2026-11-10). Optional: absent keeps an App Gateway in every environment. Copy it, with existingId and allowedIps, from the engagement input; else only from the Wizard or a person. Refusals (tierRefusals): Green only none; Yellow public with a Standard or Premium environment not none; front-door never in Red or Yellow-Internal; existing front-door needs existingId.",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["none", "app-gateway", "front-door"] },
+        "mode": { "enum": ["new", "existing"] },
+        "existingId": { "type": "string", "maxLength": 400 },
+        "allowedIps": { "type": "array", "maxItems": 20, "items": { "type": "string", "maxLength": 60 } }
+      },
+      "additionalProperties": false
+    },
+    "database": {
+      "description": "The database engine (2026-11-10). Absent is postgres. cosmos-nosql: no db-setup.sql, no PG* settings, AZURE_COSMOS_ENDPOINT and AZURE_COSMOS_DATABASE; refused in Red.",
+      "enum": ["postgres", "cosmos-nosql"]
+    },
     "region": {
       "type": "string",
       "maxLength": 400,
@@ -269,7 +285,8 @@
         },
         "existingRegistryId": {
           "type": "string",
-          "maxLength": 400
+          "maxLength": 400,
+          "description": "The resource ID of an existing, shared container registry (Green and Yellow), often in a shared resource group. Empty: the landing zone has its own. Only from the Wizard or a person; never inferred."
         },
         "defenderPlans": {
           "type": "boolean"
@@ -446,6 +463,18 @@
           "type": "integer",
           "minimum": 0
         },
+        "gateway": {
+          "type": "object",
+          "description": "Foundry Premium's AI gateway (2026-11-10). Absent: the landing zone creates its own API Management. existing needs the resource ID of a Microsoft.ApiManagement/service; principalId is a GUID; basic-v2 is refused unless Green has no network (aiGatewayRefusals). A new gateway's tier is standard-v2, or basic-v2 in Green without a network (aiGatewayTierFor).",
+          "required": ["mode"],
+          "properties": {
+            "mode": { "enum": ["new", "existing"] },
+            "existingId": { "type": "string", "maxLength": 400 },
+            "principalId": { "type": "string", "maxLength": 60 },
+            "tier": { "enum": ["basic-v2", "standard-v2", "premium-v2"] }
+          },
+          "additionalProperties": false
+        },
         "gatewayPrivateOnly": {
           "type": "array",
           "items": {
@@ -492,6 +521,9 @@
         "repository": {
           "type": "string",
           "maxLength": 400
+        },
+        "reporting": {
+          "type": "boolean"
         }
       },
       "additionalProperties": true
@@ -580,6 +612,91 @@
       "additionalProperties": true
     },
     "dataPlatform": {},
+    "landingZone": {
+      "type": "object",
+      "description": "Landing zone answers (2026-11-11), every field optional; absent keeps what the template does without it. addressSpace is the VNet range (default per zone). registry is Yellow's registry only: its network access (absent is private) or an existingId (a shared registry, possibly in another resource group or subscription). sharedResourceGroup is information only: where the shared App Gateway, Front Door, registry and API Management live; their IDs stay in edge, network and foundry.gateway. Copy from C1 or the Wizard; never infer.",
+      "properties": {
+        "addressSpace": { "type": "string", "maxLength": 20 },
+        "registry": {
+          "type": "object",
+          "properties": {
+            "access": { "enum": ["private", "public"] },
+            "existingId": { "type": "string", "maxLength": 400 }
+          },
+          "additionalProperties": false
+        },
+        "postgresNetwork": { "type": "string", "enum": ["vnet-integration", "private-endpoint"], "description": "How PostgreSQL reaches the network. Unset means vnet-integration (stored answers). Fixed once the server exists." },
+        "privateDns": {
+          "type": "object",
+          "description": "The customer's central private DNS zones. Unset means the landing zone creates its own zones.",
+          "required": ["mode"],
+          "additionalProperties": false,
+          "properties": {
+            "mode": { "type": "string", "enum": ["central-policy", "central-zones"] },
+            "zoneIds": {
+              "type": "object",
+              "propertyNames": { "type": "string", "enum": ["keyVault", "containerApps", "registry", "postgres", "cosmos", "cognitiveServices", "openAi", "aiServices", "apim", "blob"] },
+              "additionalProperties": { "type": "string", "maxLength": 400 }
+            },
+            "dnsServers": { "type": "array", "maxItems": 10, "items": { "type": "string", "maxLength": 40 } }
+          }
+        },
+        "sharedResourceGroup": {
+          "type": "object",
+          "required": ["subscriptionId", "name"],
+          "properties": {
+            "subscriptionId": { "type": "string", "maxLength": 60 },
+            "name": { "type": "string", "maxLength": 90 }
+          },
+          "additionalProperties": false
+        },
+        "sreAgent": {
+          "type": "object",
+          "description": "The optional Azure SRE Agent (2026-11-18), Yellow and Red only. shared places it in sharedResourceGroup, solution in the platform resource group of the highest environment. Unset means no agent. Copy it from the Wizard; never infer.",
+          "required": ["placement"],
+          "additionalProperties": false,
+          "properties": {
+            "placement": { "type": "string", "enum": ["shared", "solution"] }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "platformKinds": {
+      "type": "array",
+      "description": "What the solution is (2026-11-11). Absent means azure-apps only. Without azure-apps (Fabric or Power Platform only) the solution may have no app: apps is empty and the agent writes a platform plan, not a rebuild.",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": { "enum": ["azure-apps", "fabric", "power-platform"] }
+    },
+    "fabric": {
+      "type": "object",
+      "description": "The governed Fabric platform (2026-11-11); present only with the platform kind fabric. Written by the Wizard; the agent copies it and never invents it.",
+      "properties": {
+        "privateAccess": { "type": "boolean" },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "content": {
+                "type": "array",
+                "description": "Content modules (2026-11-17) the customer's own role-holders create in this stage's workspace with the package's scripts, each after the data owner approved it. Absent means none. Copy it; never add, drop or reorder a module.",
+                "minItems": 1,
+                "maxItems": 4,
+                "uniqueItems": true,
+                "items": { "enum": ["lakehouse", "medallion", "semantic-model", "data-agent"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    "powerPlatform": {
+      "description": "The governed Power Platform (2026-11-11); present only with the platform kind power-platform. Written by the Wizard; the agent copies it and never invents it."
+    },
     "discovery": {},
     "services": {
       "type": "object",

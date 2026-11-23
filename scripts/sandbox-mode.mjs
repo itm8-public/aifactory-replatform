@@ -11,7 +11,8 @@
 //   3. the run input matches contracts/mgmt/run-input.schema.json and passes the code checks below
 //      (sandbox mode, no customer source, a consistent C1, an intent this slice supports).
 // The result builder also refuses a plan that carries an answer nobody gave (`ownerClaimProblems`):
-// nobody is there to answer, so every question in the plan is an open one.
+// nobody is there to answer, so every question in the plan is an open one, except the ones the run
+// input's `answers` (a resume run) answer, copied word for word with `answeredBy: "run-input"`.
 // None of this authenticates anyone: SKILL.md is guidance, and the control is the runner running
 // this gate and the validators (reference/sandbox-mode.md). The marker only proves that a trusted
 // step, which the run user cannot imitate, started this run.
@@ -38,6 +39,25 @@ export const DEFAULT_RESULT_PATH = '.aifactory/sandbox-result.json';
 
 /** A run that cannot go on asks at most this many questions, then stops. */
 export const MAX_NEEDS_INPUT_QUESTIONS = 10;
+
+/**
+ * The questions this run may ask: the run input's `limits.maxQuestions` (the Management App's
+ * default is 5), never more than ten. Zero: the run asks nothing and records gaps instead.
+ */
+export const questionLimit = (input) => {
+  const limit = input?.limits?.maxQuestions;
+  return Number.isInteger(limit) && limit >= 0 ? Math.min(limit, MAX_NEEDS_INPUT_QUESTIONS) : MAX_NEEDS_INPUT_QUESTIONS;
+};
+
+/** How a plan question records an answer that came in the run input's `answers`. */
+export const RUN_INPUT_ANSWERED_BY = 'run-input';
+
+/** The id of the question that asks for an open C1 field: `C1-<field>`, for example `C1-zone`. */
+export const c1QuestionId = (field) => `C1-${field}`;
+
+/** The run input's answers by question id; empty for a first run. */
+export const runInputAnswers = (input) =>
+  new Map((Array.isArray(input?.answers) ? input.answers : []).map((entry) => [entry.id, entry.answer]));
 
 /** Customer code is not allowed yet. Everything else, including a missing class, is refused. */
 export const ALLOWED_SOURCE_CLASSES = ['synthetic', 'internal'];
@@ -255,6 +275,15 @@ export function checkRunInput(input) {
 export const openInputFields = (input) => input.engagementInput.missing.filter((field) => field !== 'source');
 
 /**
+ * The open C1 fields that no answer settles: a resume run's answer to `C1-<field>` settles that
+ * field for this run, although C1 lists it until a person saves it in the Wizard.
+ */
+export const unsettledInputFields = (input) => {
+  const answers = runInputAnswers(input);
+  return openInputFields(input).filter((field) => !answers.has(c1QuestionId(field)));
+};
+
+/**
  * The full gate before a sandbox run: marker, then run input. `markerPath` and `runInputPath` are
  * files; `sys` replaces the system calls in tests. Returns { ok, refusals, marker, input }.
  */
@@ -323,28 +352,41 @@ export function validatorGate({ sandbox = false, marker, runInput, env = process
 const asList = (value) => (Array.isArray(value) ? value : []);
 const isOwnerReference = (id) => typeof id === 'string' && id.startsWith('owner:');
 
+/** True when a plan question carries exactly the answer the run input gave for its id. */
+const carriesRunInputAnswer = (question, answers) =>
+  answers.has(question.id) && question.answer === answers.get(question.id) && question.answeredBy === RUN_INPUT_ANSWERED_BY;
+
 /**
- * The premise of a sandbox run is that nobody is there to answer, and the run input has no channel
- * for an answer. So a plan question may not carry `answer` or `answeredBy`, and a risk answer may
- * not have the source `owner` or cite `owner:<question-id>` evidence: the plan author writes those
- * fields itself, and plan validation would accept them as an owner's. Anything the code cannot
- * answer stays an unanswered question and the run ends needs-input. Pure; tolerant of a malformed
- * plan (validatePlan reports that); messages name a position, never a value from the plan.
+ * The premise of a sandbox run is that nobody is there to answer. The only answers are the ones the
+ * run input carries (`answers`, on a run that resumes a needs-input run). So a plan question may
+ * carry `answer` and `answeredBy` only when the run input answered its id, with that answer word for
+ * word and `answeredBy: "run-input"`; and a risk answer may have the source `owner` or cite
+ * `owner:<question-id>` only when every such id is one of those questions. Anything else was written
+ * by the plan author, and plan validation would accept it as an owner's. Pure; tolerant of a
+ * malformed plan (validatePlan reports that); messages name a position, never a value from the plan.
  */
-export function ownerClaimProblems(plan) {
+export function ownerClaimProblems(plan, runInput) {
+  const answers = runInputAnswers(runInput);
   const problems = [];
+  const answered = new Set();
   for (const [index, question] of asList(plan?.questions).entries()) {
     if (question && typeof question === 'object' && (Object.hasOwn(question, 'answer') || Object.hasOwn(question, 'answeredBy'))) {
-      problems.push(`questions[${index}] carries an answer or answeredBy: nobody answers in a sandbox run, so the question stays unanswered`);
+      if (carriesRunInputAnswer(question, answers)) answered.add(question.id);
+      else problems.push(`questions[${index}] carries an answer or answeredBy the run input did not give: only an answer from the run input's answers, word for word with answeredBy run-input, may be recorded`);
     }
   }
   for (const [index, entry] of asList(plan?.risk?.answers).entries()) {
-    if (entry?.source === 'owner' || asList(entry?.evidence).some(isOwnerReference)) {
-      problems.push(`risk.answers[${index}] names an owner (source owner or owner:<question-id> evidence): no owner answered; answer from the code or leave it unknown`);
+    const owners = asList(entry?.evidence).filter(isOwnerReference);
+    const backed = owners.length > 0 && owners.every((id) => answered.has(id.slice('owner:'.length)));
+    if ((entry?.source === 'owner' || owners.length > 0) && !backed) {
+      problems.push(`risk.answers[${index}] names an owner (source owner or owner:<question-id> evidence) that the run input did not answer; answer from the code or leave it unknown`);
     }
   }
   return problems;
 }
+
+/** The plan questions still open: the ones without an answer. */
+const openQuestions = (plan) => asList(plan?.questions).filter((question) => !Object.hasOwn(question ?? {}, 'answer'));
 
 // ---- Resume ------------------------------------------------------------------------------------
 
@@ -365,7 +407,7 @@ export function lastGoodStep({ plan, previousResult, runInput }) {
   const fresh = (reason) => ({ from: 'discover', reason });
   if (!plan) return fresh('there is no plan from an earlier run');
   if (validatePlan(plan).length) return fresh('the plan on disk does not validate');
-  if (ownerClaimProblems(plan).length) return fresh('the plan on disk holds answers or owner references that nobody gave');
+  if (ownerClaimProblems(plan, runInput).length) return fresh('the plan on disk holds answers or owner references that nobody gave in this run input');
   if (plan.status !== 'questions') return fresh('the plan on disk is not waiting for answers');
   if (!previousResult) return fresh('there is no result file from an earlier run');
   if (validateResult(previousResult).length) return fresh('the earlier result file does not validate');
@@ -379,14 +421,17 @@ export function lastGoodStep({ plan, previousResult, runInput }) {
 
 /**
  * Builds the result from the run input and the plan; deterministic, nothing from the model but the
- * plan's questions, and those may not carry an answer (nobody answers in a sandbox run), so every
- * question in the plan is an open one. Returns { result } or { refusals }. needs-input applies when
- * C1 leaves a field open (not counting `source`) or the plan is at `questions` with questions. It
- * never truncates: more than ten questions, or an open C1 without a question, is invalid.
+ * plan's open questions. A question may carry an answer only when the run input gave it
+ * (`ownerClaimProblems`); answered questions are not asked again and do not count. Returns
+ * { result } or { refusals }. needs-input applies when C1 leaves a field open that no answer
+ * settles (not counting `source`) and the run may ask, or the plan is at `questions` with open
+ * questions. It never truncates: more open questions than `questionLimit`, or an open C1 without
+ * a question while the run may ask, is invalid. With a limit of zero the run asks nothing: an open
+ * C1 field is a gap the plan records, not a question.
  */
 export function buildResult({ runInput, plan }) {
   const fail = (code, message) => ({ refusals: [refusal(code, message)] });
-  const claims = ownerClaimProblems(plan);
+  const claims = ownerClaimProblems(plan, runInput);
   if (claims.length) {
     return { refusals: claims.slice(0, MAX_SCHEMA_MESSAGES).map((claim) => refusal('plan-owner-answer', `plan: ${claim}`)) };
   }
@@ -399,13 +444,14 @@ export function buildResult({ runInput, plan }) {
   }
   const ids = plan.questions.map((question) => question.id);
   if (new Set(ids).size !== ids.length) return fail('duplicate-question-id', 'two plan questions share an id');
-  const { questions } = plan;
-  if (questions.length > MAX_NEEDS_INPUT_QUESTIONS) {
-    return fail('too-many-questions', `${questions.length} questions; the limit is ${MAX_NEEDS_INPUT_QUESTIONS}. Ask the open C1 fields first, then the highest-impact risk questions, and leave the rest unknown`);
+  const questions = openQuestions(plan);
+  const limit = questionLimit(runInput);
+  if (questions.length > limit) {
+    return fail('too-many-questions', `${questions.length} open questions; this run's limit is ${limit}. Ask the open C1 fields first, then the highest-impact risk questions, and record the rest as assumptions or gaps`);
   }
-  const open = openInputFields(runInput);
+  const open = limit > 0 ? unsettledInputFields(runInput) : [];
   if (open.length > 0 && questions.length === 0) {
-    return fail('no-question-for-open-input', `C1 leaves ${open.join(', ')} open but the plan holds no question`);
+    return fail('no-question-for-open-input', `C1 leaves ${open.join(', ')} open but the plan holds no open question`);
   }
   const needsInput = open.length > 0 || (plan.status === 'questions' && questions.length > 0);
   if (needsInput && !PLAN_STATUSES_WHILE_NEEDING_INPUT.includes(plan.status)) {
@@ -522,8 +568,9 @@ export function main(argv, { env = process.env, cwd = process.cwd(), stdout, std
       intent: gate.input.intent,
       sourceClass: gate.input.source.class,
       source: { sha256: gate.input.source.sha256 },
-      openFields: openInputFields(gate.input),
-      maxQuestions: MAX_NEEDS_INPUT_QUESTIONS,
+      openFields: unsettledInputFields(gate.input),
+      maxQuestions: questionLimit(gate.input),
+      answers: [...runInputAnswers(gate.input).keys()],
       resume: lastGoodStep({ plan: plan.value, previousResult: previous.value, runInput: gate.input }),
     });
     return EXIT.OK;
