@@ -172,6 +172,11 @@ Solution tools (per-solution key):
 - `replatform_post_replatform_assessment`: submit the existing assessment-create body as a proposed
   assessment for the scoped solution; only a person can accept it.
 
+- `replatform_get_replatform_run`: read one engagement's Replatform run (state, pull request link,
+  the steps a person still has to take); input `{ "engagementId": "<id>", "scope": <allowed scope> }`.
+  An incoming A2A message that names a run is checked with it first
+  ([skills/replatform/reference/incoming-a2a.md](skills/replatform/reference/incoming-a2a.md)).
+
 - `replatform_get_prerequisite_status`: read the customer prerequisite packages and the role that blocks each; input
   `{ "solutionId": "<scoped solution ID>" }`. `tracking` is `derived` until packages are stored, then `stored`.
   Read-only: the agent never creates, sends, waives or closes a package.

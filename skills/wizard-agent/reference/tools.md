@@ -40,3 +40,24 @@ The Management App's A2A facade starts and reads Replatform runs. Its shapes are
   approved by a person; otherwise the facade answers with a conflict. The task id is the engagement id.
 - `INPUT_REQUIRED` means a person must act (a question, or the plan approval). Say which, and wait.
 - The facade has no approve method. The agent never approves, confirms a zone or deploys.
+
+## Trace context (host configuration)
+
+This section is for the people who configure the Foundry agent's host; it is not in the agent's
+pinned instructions, because the model does not write HTTP headers or span attributes. Keep one
+trace per agent run: the `traceparent` the run started with if it is valid, otherwise a new trace.
+If the host cannot send the header, the run report says "trace context not sent"
+([tracing.md](../../replatform/reference/tracing.md)).
+
+Every MCP call and A2A call (`SendMessage`, `GetTask`, `CancelTask`) carries one W3C `traceparent`
+header with the agent run's single trace id and a new parent id per call. The Management App records
+it with the audit entry and returns a `traceparent` on the response; a missing or malformed header is
+ignored, not refused. The Foundry conversation id and response id go on the run's span as
+`gen_ai.conversation.id` and `gen_ai.response.id`. No `tracestate`, no `baggage`. The host sets the
+header (the Foundry MCP tool and A2A connection); the eval `wizard-agent-traceparent` checks it.
+
+## Incoming A2A (rollout)
+
+Incoming A2A stays off on the Foundry Wizard agent until a release with the run guard in SKILL.md
+and the `a2a-run-id-guard` eval has passed the release gate; turning it on is itm8's decision
+([incoming-a2a.md](../../replatform/reference/incoming-a2a.md#off-until-published)).

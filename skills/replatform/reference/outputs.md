@@ -79,7 +79,8 @@ The v1 spec includes `customer` (`name`, `code`), `solution` (`name`, `code`, `o
 environment), `apps` (web/api/worker, repo, port, probes, settings by **name** with a `secret` flag,
 database, AI and migration job), `foundry`, `delivery`, and `readiness`. Optional additive fields
 include `archetype`, `connectivity`, `audience`, `evaluation`, Red-only `egress`, non-Red `network`,
-`caf`, `discovery`, and `dataPlatform`.
+`caf`, `discovery`, `dataPlatform`, `edge`, `database`, `foundry.gateway`, and (2026-11-11)
+`landingZone`, `platformKinds`, `fabric` and `powerPlatform`.
 
 Before implementing, explicitly verify these constraints:
 
@@ -115,6 +116,19 @@ Before implementing, explicitly verify these constraints:
   Premium needs a human-selected per-app `tokensPerMinute`, explicit `monthlyTokenQuota` (`0` means
   no cap), and gateway contact. Never invent those values. Premium apps use the AI gateway and get
   no Foundry account role or `AZURE_AI_PROJECT_ENDPOINT`.
+- `edge`, `database` and `foundry.gateway` (2026-11-10) are written only when C1, the Wizard or a
+  person gave them; leave a key out rather than guess it. The plan and the plan page name the edge
+  per environment, the database and the gateway choice, and each refusal
+  ([platform-rules.md](platform-rules.md), "Zone tiers" and "Foundry Premium AI gateway"). Edge
+  `none`: web apps `easyAuth: true`. `cosmos-nosql`: no `db-setup.sql`, no `PG*` settings, the
+  containers with partition keys in the plan, and a planned code change for data access. Premium
+  with a gateway: the apps' AI calls go through it with their managed identity; no key setting.
+- `landingZone` (`addressSpace`, `registry`, `sharedResourceGroup`), `network.existingRegistryId`,
+  `platformKinds`, `fabric` and `powerPlatform` are written only as C1, the Wizard or a person gave
+  them; never inferred from discovery or a resource group name. `landingZone.registry` is Yellow
+  only, and `public` is never the agent's choice. The shared resource group is information only.
+  Without `azure-apps` in `platformKinds`, `apps` is `[]`
+  and the plan is a platform plan ([platform-rules.md](platform-rules.md), "Platform kinds").
 - Omit `dataPlatform` unless Fabric was explicitly selected. Seeded competency tracks mentioning
   Fabric/Power BI are not a runtime integration.
 

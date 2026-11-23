@@ -1,7 +1,7 @@
 # Apps built with the AI Factory code plugin
 
 The `aifactory-code` plugin helps people build a new app
-to the build rules (`build-kit/AGENTS.md` in this repository) from the first prompt. Its apps carry
+to the [build rules](../../../build-kit/AGENTS.md) from the first prompt. Its apps carry
 `.aifactory/build-profile.json`. When you find one, you are replatforming an app that tried to
 follow the rules, so expect few changes and check that it really does.
 

@@ -13,6 +13,7 @@ Validation: `.aifactory/validation-report.md`
 |---|---|---|
 | Build | {PASS / FAIL / WARN / SKIPPED / NOT RUN} | |
 | Tests | | |
+| Change gate: refusal tests and security pass | | |
 | SAST | | |
 | IaC scan | | |
 | Secret scan | | |
@@ -26,6 +27,7 @@ Validation: `.aifactory/validation-report.md`
 The reviewer ticks an item only after checking it; an unticked item is not an approval.
 
 - [ ] Every `APP-###` item is done, or the reason is written below
+- [ ] Every trust-boundary line in the plan's change gate has a refusal test that ran and passed
 - [ ] The analyze and converge warnings below were read
 - [ ] Data classification and the suggested zone match what the owner said
 - [ ] No outside host, secret value or platform file was added
